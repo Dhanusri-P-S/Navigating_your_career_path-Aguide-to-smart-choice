@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentor Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #d0e7ff, #f0f9ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1000px;
+    }
+
+    .mentor-login-container {
+      width: 380px;
+      padding: 30px 25px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 20px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      text-align: center;
+      color: #014f86;
+      transform-style: preserve-3d;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.3);
+      color: #014f86;
+      font-size: 14px;
+      box-shadow: inset 1px 1px 5px rgba(0,0,0,0.05);
+    }
+
+    input::placeholder {
+      color: #555;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background: #00b4d8;
+      color: white;
+      font-size: 15px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background: #0077b6;
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: rotateY(-10deg) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: rotateY(0) scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="mentor-login-container">
+    <h2>Mentor Login</h2>
+    <form id="mentorLoginForm">
+      <input type="email" id="mentorEmail" placeholder="Email" required />
+      <input type="password" id="mentorPassword" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+ <script>
+  document.getElementById('mentorLoginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const email = document.getElementById("mentorEmail").value.trim();
+    let password = document.getElementById("mentorPassword").value.trim();
+
+    if (!email) {
+      alert("Please enter your email");
+      return;
+    }
+
+    const emailToNameMap = {
+      "dhivyakalai22@gmail.com": "Ms.Dhivya Selvam",
+      "dhanusrips@gmail.com": "Ms.Dhanusri",
+      "sowmiyasasikumar23@gmail.com": "Ms.Sowmiya Sasikumar",
+      "divyabharathi16104@gmail.com": "Ms.Divyabharathi"
+    };
+
+    const defaultPasswords = {
+      "dhivyakalai22@gmail.com": "dhivya123",
+      "dhanusrips@gmail.com": "dhanu123",
+      "sowmiyasasikumar23@gmail.com": "sowmi123",
+      "divyabharathi16104@gmail.com": "divya123"
+    };
+
+    const mentorName = emailToNameMap[email.toLowerCase()] || "Unknown Mentor";
+
+    if (mentorName === "Unknown Mentor") {
+      alert("Unauthorized email. Please use a registered mentor email.");
+      return;
+    }
+
+    // ✅ If password field is empty, set default password
+    if (!password) {
+      password = defaultPasswords[email.toLowerCase()] || "default123";
+      alert(`Default password assigned: ${password}`);
+    }
+
+    // ✅ Save login details to localStorage
+    localStorage.removeItem("userLoggedIn");
+    localStorage.setItem("mentorLoggedIn", "true");
+    localStorage.setItem("loggedMentorName", mentorName);
+    localStorage.setItem("loggedMentorEmail", email);
+    localStorage.setItem("loggedMentorPassword", password);
+
+    // ✅ Also send login details to backend database
+    fetch("http://localhost:8080/api/mentor/save-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mentorName: mentorName,
+        email: email,
+        password: password
+      })
+    })
+    .then(response => {
+      if (!response.ok) throw new Error("Failed to save mentor login");
+      return response.text();
+    })
+    .then(msg => {
+      console.log("✅ Saved to backend:", msg);
+      alert(`Mentor login successful as ${mentorName}`);
+      window.location.href = "mentor.html";
+    })
+    .catch(error => {
+      console.error("❌ Backend save failed:", error);
+      alert("Mentor login saved locally, but failed to save to server.");
+      window.location.href = "mentor.html";
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Report Preview</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f0f2f5, #cfd9df);
+      padding: 20px;
+    }
+    .card {
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-weight: 600;
+      color: #007BFF;
+      margin-top: 20px;
+    }
+    #downloadBtn {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="reportContent">
+  <h2 class="text-center mb-4">📄 Student Report Preview</h2>
+
+  <div class="card">
+    <div class="card-body">
+      <h5 class="section-title">👤 Login & Student Info</h5>
+      <p><strong>Name:</strong> <span id="userName"></span></p>
+      <p><strong>Age:</strong> <span id="userAge"></span></p>
+      <p><strong>Email:</strong> <span id="userEmail"></span></p>
+      <p><strong>Gender:</strong> <span id="userGender"></span></p>
+      <p><strong>Parent Name:</strong> <span id="userParentName"></span></p>
+      <p><strong>Parent Occupation:</strong> <span id="userParentOccupation"></span></p>
+      <p><strong>Parent Income:</strong> <span id="userParentIncome"></span></p>
+      <p><strong>12th Mark:</strong> <span id="userMark"></span></p>
+      <p><strong>10th Mark:</strong> <span id="userMarks"></span></p>
+      <p><strong>Hobbies:</strong> <span id="userHobbies"></span></p>
+      <p><strong>Phone:</strong> <span id="userPhone"></span></p>
+      <p><strong>Religion:</strong> <span id="userReligion"></span></p>
+      <p><strong>Caste:</strong> <span id="userCaste"></span></p>
+      <p><strong>School:</strong> <span id="userSchool"></span></p>
+      <p><strong>Home Address:</strong> <span id="userAddress"></span></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h5 class="section-title">🎓 Group & Interest Selection</h5>
+      <p><strong>Selected Group:</strong> <span id="groupName"></span> (<span id="groupScore"></span>)</p>
+      <p><strong>Interest:</strong> <span id="interestName"></span> (<span id="interestScore"></span>)</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h5 class="section-title">🧠 Psychometric Profile</h5>
+      <canvas id="psychometricChart" height="300"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h5 class="section-title">📚 Recommended Courses</h5>
+      <ul id="recommendedCourses"></ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h5 class="section-title">👨‍🏫 Mentor Selection</h5>
+      <p><strong>Mentor Name:</strong> <span id="mentorName"></span></p>
+      <p><strong>Slot Time:</strong> <span id="mentorSlot"></span></p>
+    </div>
+  </div>
+
+  <!-- <button class="btn btn-success" id="downloadBtn" onclick="window.print()">⬇️ Preview</button> -->
+  <button class="btn btn-primary" id="downloadBtn" onclick="downloadPDF()">⬇️ Download PDF</button>
+</div>
+
+<script>
+  const student = JSON.parse(localStorage.getItem("studentHistory") || '{}');
+  const quiz = JSON.parse(localStorage.getItem("subjectQuizResults") || '{}');
+  const interest = localStorage.getItem("selectedInterest");
+  const interestScore = localStorage.getItem("interestScore") || '--';
+  const psychometric = JSON.parse(localStorage.getItem("psychometricResponses") || '{}');
+  const mentor = JSON.parse(localStorage.getItem("selectedMentor") || '{}');
+  const courses = JSON.parse(localStorage.getItem("recommendedCourses") || '[]');
+
+  // Populate student info
+  document.getElementById("userName").textContent = student.name || '--';
+  document.getElementById("userAge").textContent = student.age || '--';
+  document.getElementById("userEmail").textContent = student.email || '--';
+  document.getElementById("userGender").textContent = student.gender || '--';
+  document.getElementById("userParentName").textContent = student.parentName || '--';
+  document.getElementById("userParentOccupation").textContent = student.parentOccupation || '--';
+  document.getElementById("userParentIncome").textContent = student.parentIncome || '--';
+  document.getElementById("userMark").textContent = student.mark || '--';
+  document.getElementById("userMarks").textContent = student.marks || '--';
+  document.getElementById("userHobbies").textContent = student.hobbies || '--';
+  document.getElementById("userPhone").textContent = student.phone || '--';
+  document.getElementById("userReligion").textContent = student.religion || '--';
+  document.getElementById("userCaste").textContent = student.caste || '--';
+  document.getElementById("userSchool").textContent = student.school || '--';
+  document.getElementById("userAddress").textContent = student.address || '--';
+
+  // Group & Interest
+  document.getElementById("groupName").textContent = quiz.group || '--';
+  document.getElementById("groupScore").textContent = quiz.score || '--';
+  document.getElementById("interestName").textContent = interest || '--';
+  document.getElementById("interestScore").textContent = interestScore;
+
+  // Mentor Details (💡 this was updated!)
+  document.getElementById("mentorName").textContent = mentor.name || '--';
+  document.getElementById("mentorSlot").textContent = mentor.slot || '--';
+
+  // Psychometric chart
+  const traits = { "Creativity": 0, "Self-awareness": 0, "Abstract thinking": 0, "Emotional intelligence": 0, "Critical thinking": 0 };
+  const options = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
+  Object.values(psychometric).forEach(item => {
+    const q = item.question.toLowerCase();
+    const score = options.indexOf(item.answer) + 1;
+    if (q.includes("idea") || q.includes("exploring")) traits.Creativity += score;
+    if (q.includes("goal") || q.includes("responsibility") || q.includes("own learning")) traits["Self-awareness"] += score;
+    if (q.includes("adapt") || q.includes("concept")) traits["Abstract thinking"] += score;
+    if (q.includes("emotion") || q.includes("positive") || q.includes("anxious")) traits["Emotional intelligence"] += score;
+    if (q.includes("decision") || q.includes("analyz")) traits["Critical thinking"] += score;
+  });
+
+  new Chart(document.getElementById("psychometricChart"), {
+    type: 'radar',
+    data: {
+      labels: Object.keys(traits),
+      datasets: [{
+        label: 'Psychometric Traits',
+        data: Object.values(traits),
+        backgroundColor: 'rgba(0, 123, 255, 0.2)',
+        borderColor: '#007BFF',
+        pointBackgroundColor: '#007BFF'
+      }]
+    },
+    options: {
+      scales: { r: { beginAtZero: true, min: 0, max: 25 } }
+    }
+  });
+
+  // Recommended courses
+  const courseList = document.getElementById("recommendedCourses");
+  if (courses.length) {
+    courses.forEach(course => {
+      const li = document.createElement("li");
+      li.textContent = course;
+      courseList.appendChild(li);
+    });
+  } else {
+    courseList.innerHTML = '<li>No courses available</li>';
+  }
+
+  function downloadPDF() {
+    const element = document.getElementById('reportContent');
+    html2pdf().from(element).set({
+      margin: 10,
+      filename: `Student_Report_${student.name || 'report'}.pdf`
+    }).save();
+  }
+</script>
+</body>
+</html>

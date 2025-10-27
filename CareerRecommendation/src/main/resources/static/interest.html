@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Group Selection</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 20px;
+    background: linear-gradient(135deg, #f4f4f4, #e0f7fa);
+    animation: backgroundFade 10s infinite alternate;
+}
+
+@keyframes backgroundFade {
+    0% { background-color: #f4f4f4; }
+    100% { background-color: #e0f7fa; }
+}
+
+h2 {
+    color: #333;
+    font-size: 2em;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+select,
+button {
+    font-size: 16px;
+    padding: 10px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+select {
+    background-color: #fff;
+}
+
+select:hover {
+    transform: scale(1.05);
+    background-color: #f0f8ff;
+}
+
+button {
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+#quizContainer {
+    background: white;
+    padding: 20px;
+    margin: 20px auto;
+    width: 50%;
+    border-radius: 10px;
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1);
+    animation: slideIn 1s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hidden {
+    display: none;
+}
+
+button.option-btn {
+    display: block;
+    width: 80%;
+    margin: 10px auto;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+button.option-btn:hover {
+    background-color: #218838;
+    transform: translateX(5px);
+}
+
+    </style>
+</head>
+
+<body style="background-image: url('background.png'); background-size: cover; background-repeat: no-repeat; background-position: center; font-family: Arial, sans-serif;">
+    <h2>Select Your Area Of Interest</h2>
+    <select id="groupSelect">
+        <option value="robotics">robotics</option>
+        <option value="designing">designing</option>
+        <option value="music">music</option>
+        <option value="sports">sports</option>
+        <option value="marketing">marketing</option>
+        <option value="drawing">drawing</option>
+        <option value="painting">painting</option>
+        <option value="teaching">teaching</option>
+        <option value="startups">startups</option>
+        <option value="business">business</option>
+        <option value="agriculture">agriculture</option>
+        <option value="genetics">genetics</option>
+        <option value="developer">developer</option>
+        <option value="phhotography">photography</option>
+        <option value="police">police</option>
+        <option value="IAS">IAS</option>
+    </select>
+    <button onclick="startQuiz()">Start Quiz</button>
+
+    <div id="quizContainer" class="hidden">
+        <h3 id="questionText"></h3>
+        <div id="optionsContainer"></div>
+       <button id="nextBtn" class="hidden" onclick="goToNextPage()">Next</button>
+    </div>
+
+    <script>
+        const questions = {
+            "robotics": [
+                { q: "What is the brain of a robot called?", options: ["Actuator", "Controller", "Sensor", "Motor"], answer: "Controller" },
+                { q: "Which component is used for movement in a robot?", options: ["Sensor", "Actuator", "Microcontroller", "Battery"], answer: "Actuator" },
+                { q: "Which programming language is widely used in robotics?", options: ["Java", "Python", "Swift", "COBOL"], answer: "Python" },
+                { q: "Which type of robot mimics human motion?", options: ["Autonomous Robot", "Humanoid Robot", "Industrial Robot", "Swarm Robot"], answer: "Humanoid Robot" },
+                { q: "What is the main function of a sensor in a robot?", options: ["To process data", "To control movement", "To detect changes in the environment", "To store energy"], answer: "To detect changes in the environment" },
+                { q: "Which of the following is an example of an input device for a robot?", options: ["Motor", "Battery", "Camera", "LED"], answer: "Camera" },
+                { q: "Which part of the robot is responsible for decision-making?", options: ["Microcontroller", "Actuator", "Sensor", "Chassis"], answer: "Microcontroller" },
+                { q: "Which sensor is used for detecting obstacles?", options: ["Ultrasonic Sensor", "Temperature Sensor", "Light Sensor", "Humidity Sensor"], answer: "Ultrasonic Sensor" },
+                { q: "What is the function of an actuator in a robot?", options: ["To make decisions", "To generate power", "To move parts of the robot", "To sense objects"], answer: "To move parts of the robot" },
+                { q: "What does LiDAR stand for?", options: ["Light Detection and Ranging", "Laser Distance and Radar", "Linear Digital and Radar", "Light and Digital Analysis Radar"], answer: "Light Detection and Ranging" },
+                { q: "What type of robot is used in car manufacturing?", options: ["Humanoid Robot", "Industrial Robot", "Autonomous Robot", "Medical Robot"], answer: "Industrial Robot" },
+                { q: "Which energy source is most commonly used in robots?", options: ["Solar", "Battery", "Coal", "Nuclear"], answer: "Battery" },
+                { q: "Which AI technique helps robots learn from experience?", options: ["Machine Learning", "Blockchain", "Cloud Computing", "Cryptography"], answer: "Machine Learning" },
+                { q: "Which type of robot can operate without human intervention?", options: ["Teleoperated Robot", "Autonomous Robot", "Hybrid Robot", "Swarm Robot"], answer: "Autonomous Robot" },
+                { q: "Which part of a robot converts electrical energy into mechanical movement?", options: ["Controller", "Actuator", "Sensor", "Power Supply"], answer: "Actuator" },
+                { q: "Which robotic system is used in space exploration?", options: ["SCARA Robot", "Robotic Arm", "Rover", "Autonomous Drone"], answer: "Rover" },
+                { q: "What is the full form of ROS in robotics?", options: ["Robot Operating System", "Robotic Optical Sensor", "Remote Operating System", "Robotic Object Scanner"], answer: "Robot Operating System" },
+                { q: "Which type of motor is commonly used in robotics?", options: ["Steam Engine", "Servo Motor", "Diesel Engine", "Turbine"], answer: "Servo Motor" },
+                { q: "What is an exoskeleton robot used for?", options: ["Medical Rehabilitation", "Cooking", "Industrial Manufacturing", "Playing Music"], answer: "Medical Rehabilitation" },
+                { q: "Which robot is designed to work alongside humans?", options: ["Autonomous Robot", "Humanoid Robot", "Cobots", "Swarm Robot"], answer: "Cobots" }
+            ],
+            "designing": [
+                { q: "Which principle of design focuses on the arrangement of elements to create stability?", options: ["Balance", "Contrast", "Emphasis", "Harmony"], answer: "Balance" },
+                { q: "Which color model is primarily used for digital screens?", options: ["CMYK", "RGB", "PMS", "HSB"], answer: "RGB" },
+                { q: "What does DPI stand for in graphic design?", options: ["Dots Per Inch", "Design Process Indicator", "Digital Pixel Integration", "Depth Per Image"], answer: "Dots Per Inch" },
+                { q: "Which font type is typically easier to read in print?", options: ["Serif", "Sans-serif", "Script", "Decorative"], answer: "Serif" },
+                { q: "Which software is widely used for vector-based graphic design?", options: ["Photoshop", "Illustrator", "InDesign", "CorelDRAW"], answer: "Illustrator" },
+                { q: "What is the term for the space between lines of text?", options: ["Kerning", "Tracking", "Leading", "Spacing"], answer: "Leading" },
+                { q: "Which of the following is NOT a primary color in the RGB model?", options: ["Red", "Green", "Blue", "Yellow"], answer: "Yellow" },
+                { q: "What is the purpose of a mood board in design?", options: ["To display final designs", "To collect inspiration and ideas", "To track project deadlines", "To edit images"], answer: "To collect inspiration and ideas" },
+                { q: "Which of the following file formats is best for maintaining high-quality print designs?", options: ["JPEG", "PNG", "TIFF", "GIF"], answer: "TIFF" },
+                { q: "Which principle of design refers to the visual weight of elements?", options: ["Contrast", "Alignment", "Proximity", "Balance"], answer: "Balance" },
+                { q: "What is a common resolution for high-quality print design?", options: ["72 DPI", "150 DPI", "300 DPI", "600 DPI"], answer: "300 DPI" },
+                { q: "What does UX stand for in design?", options: ["User Experience", "Universal Execution", "Ultra Experience", "User Extension"], answer: "User Experience" },
+                { q: "Which of these is a warm color?", options: ["Blue", "Green", "Red", "Purple"], answer: "Red" },
+                { q: "What is white space in design?", options: ["A blank page", "Unused space in a design", "The white background of a website", "A type of font"], answer: "Unused space in a design" },
+                { q: "Which type of design focuses on improving usability and accessibility?", options: ["Graphic Design", "Interior Design", "UX Design", "Fashion Design"], answer: "UX Design" },
+                { q: "Which element in design is used to create emphasis?", options: ["Color", "Symmetry", "White space", "Texture"], answer: "Color" },
+                { q: "What does CSS stand for in web design?", options: ["Creative Style Sheets", "Cascading Style Sheets", "Computer Style System", "Colorful Site Structure"], answer: "Cascading Style Sheets" },
+                { q: "Which of the following is a design principle that ensures elements are visually connected?", options: ["Alignment", "Repetition", "Proximity", "Contrast"], answer: "Proximity" },
+                { q: "What is the golden ratio in design?", options: ["A method to balance colors", "A mathematical ratio used to create harmony", "A rule for designing typography", "A measurement for screen resolution"], answer: "A mathematical ratio used to create harmony" },
+                { q: "Which file format supports transparency?", options: ["JPEG", "PNG", "BMP", "TIFF"], answer: "PNG" }
+            ],
+            "music": [
+                { q: "Which instrument is known as the 'king of instruments'?", options: ["Piano", "Violin", "Organ", "Trumpet"], answer: "Organ" },
+                { q: "How many lines are there in a standard musical staff?", options: ["3", "5", "6", "7"], answer: "5" },
+                { q: "What is the term for gradually getting louder in music?", options: ["Crescendo", "Diminuendo", "Staccato", "Legato"], answer: "Crescendo" },
+                { q: "Which of these is a woodwind instrument?", options: ["Trumpet", "Flute", "Violin", "Piano"], answer: "Flute" },
+                { q: "Who composed 'Für Elise'?", options: ["Mozart", "Beethoven", "Bach", "Chopin"], answer: "Beethoven" },
+                { q: "What does 'tempo' refer to in music?", options: ["Loudness", "Speed", "Pitch", "Rhythm"], answer: "Speed" },
+                { q: "Which of these is a percussion instrument?", options: ["Clarinet", "Cello", "Drums", "Harp"], answer: "Drums" },
+                { q: "Which famous composer was deaf?", options: ["Bach", "Beethoven", "Mozart", "Vivaldi"], answer: "Beethoven" },
+                { q: "Which symbol represents a sharp note in music notation?", options: ["♭", "♯", "♮", "𝄞"], answer: "♯" },
+                { q: "What is the highest vocal range for a female singer?", options: ["Alto", "Tenor", "Soprano", "Bass"], answer: "Soprano" },
+                { q: "Which instrument typically has 88 keys?", options: ["Violin", "Guitar", "Piano", "Accordion"], answer: "Piano" },
+                { q: "Which famous band was known as the 'Fab Four'?", options: ["The Rolling Stones", "The Beatles", "Queen", "Pink Floyd"], answer: "The Beatles" },
+                { q: "Which musical term means 'slow'?", options: ["Presto", "Largo", "Allegro", "Vivace"], answer: "Largo" },
+                { q: "Which country is famous for inventing the sitar?", options: ["China", "India", "Japan", "Egypt"], answer: "India" },
+                { q: "What is the name of the spaces between two notes in music?", options: ["Interval", "Chord", "Octave", "Scale"], answer: "Interval" },
+                { q: "Which part of a drum is hit to produce sound?", options: ["Resonator", "Tuning peg", "Drumhead", "Bridge"], answer: "Drumhead" },
+                { q: "What does 'forte' (f) mean in music?", options: ["Soft", "Fast", "Loud", "Slow"], answer: "Loud" },
+                { q: "Which instrument is commonly used in jazz music?", options: ["Banjo", "Saxophone", "Viola", "Harmonica"], answer: "Saxophone" },
+                { q: "What is a group of musicians playing together called?", options: ["Orchestra", "Solo", "Trio", "Scale"], answer: "Orchestra" },
+                { q: "Which of these composers was from the Baroque period?", options: ["Beethoven", "Bach", "Debussy", "Stravinsky"], answer: "Bach" }
+            ],
+            "sports": [
+                { q: "Which country won the FIFA World Cup in 2018?", options: ["Germany", "Brazil", "France", "Argentina"], answer: "France" },
+                { q: "How many players are there in a standard soccer team on the field?", options: ["9", "10", "11", "12"], answer: "11" },
+                { q: "What is the maximum score in a single frame of bowling?", options: ["100", "150", "200", "300"], answer: "300" },
+                { q: "Which sport is associated with Wimbledon?", options: ["Football", "Tennis", "Golf", "Cricket"], answer: "Tennis" },
+                { q: "How many rings are there in the Olympic logo?", options: ["3", "4", "5", "6"], answer: "5" },
+                { q: "Which country is famous for sumo wrestling?", options: ["China", "Japan", "South Korea", "Mongolia"], answer: "Japan" },
+                { q: "In basketball, how many points is a free throw worth?", options: ["1", "2", "3", "4"], answer: "1" },
+                { q: "Who holds the record for the most Olympic gold medals?", options: ["Usain Bolt", "Michael Phelps", "Carl Lewis", "Simone Biles"], answer: "Michael Phelps" },
+                { q: "What is the national sport of Canada?", options: ["Hockey", "Lacrosse", "Baseball", "Football"], answer: "Lacrosse" },
+                { q: "Which sport is played on the largest field?", options: ["Football", "Rugby", "Cricket", "Polo"], answer: "Polo" },
+                { q: "Which cricketer has scored 100 international centuries?", options: ["Virat Kohli", "Ricky Ponting", "Sachin Tendulkar", "Brian Lara"], answer: "Sachin Tendulkar" },
+                { q: "How many players are there in a volleyball team on the court?", options: ["4", "5", "6", "7"], answer: "6" },
+                { q: "What is the name of the trophy awarded in the NBA Finals?", options: ["Larry O'Brien Trophy", "Stanley Cup", "Vince Lombardi Trophy", "Wimbledon Cup"], answer: "Larry O'Brien Trophy" },
+                { q: "Which country hosts the Tour de France?", options: ["Italy", "Spain", "France", "Germany"], answer: "France" },
+                { q: "What is the standard distance of a marathon?", options: ["21.1 km", "30 km", "42.2 km", "50 km"], answer: "42.2 km" },
+                { q: "What does the red card mean in soccer?", options: ["Warning", "Ejection from the game", "Penalty kick", "Extra time"], answer: "Ejection from the game" },
+                { q: "Which sport is known as the 'king of sports'?", options: ["Tennis", "Cricket", "Soccer", "Basketball"], answer: "Soccer" },
+                { q: "Which Indian sport is similar to tag?", options: ["Kho-Kho", "Kabaddi", "Gilli Danda", "Lagori"], answer: "Kabaddi" },
+                { q: "Which sport uses the term 'birdie'?", options: ["Golf", "Tennis", "Badminton", "Bowling"], answer: "Badminton" },
+                { q: "Which is the fastest racquet sport in the world?", options: ["Tennis", "Badminton", "Squash", "Table Tennis"], answer: "Badminton" }
+            ],
+            "marketing": [
+                { q: "What is the primary goal of marketing?", options: ["Increase sales", "Build brand awareness", "Understand customer needs", "All of the above"], answer: "All of the above" },
+                { q: "Which of the following is NOT a part of the 4Ps of marketing?", options: ["Product", "Price", "Performance", "Promotion"], answer: "Performance" },
+                { q: "Which type of marketing involves promoting products through social media platforms?", options: ["Traditional marketing", "Content marketing", "Social media marketing", "Direct marketing"], answer: "Social media marketing" },
+                { q: "What does SEO stand for in digital marketing?", options: ["Search Engine Optimization", "Social Engagement Online", "Sales Enhancement Operation", "Software Efficiency Optimization"], answer: "Search Engine Optimization" },
+                { q: "Which of the following is an example of inbound marketing?", options: ["Cold calling", "TV advertisement", "Blogging", "Billboards"], answer: "Blogging" },
+                { q: "What is the main objective of branding?", options: ["Reduce costs", "Increase production", "Differentiate a product", "Lower prices"], answer: "Differentiate a product" },
+                { q: "Which marketing strategy involves selling products directly to customers via personal interactions?", options: ["Mass marketing", "Direct marketing", "Niche marketing", "Digital marketing"], answer: "Direct marketing" },
+                { q: "Which pricing strategy involves setting a high initial price and lowering it over time?", options: ["Penetration pricing", "Skimming pricing", "Competitive pricing", "Psychological pricing"], answer: "Skimming pricing" },
+                { q: "Which of the following is a key advantage of digital marketing?", options: ["Limited audience reach", "Lower engagement", "Measurable results", "Expensive advertising costs"], answer: "Measurable results" },
+                { q: "Which type of advertising uses celebrity endorsements?", options: ["Guerrilla marketing", "Influencer marketing", "Content marketing", "Affiliate marketing"], answer: "Influencer marketing" },
+                { q: "Which of the following is NOT a type of market segmentation?", options: ["Demographic", "Psychographic", "Geographic", "Environmental"], answer: "Environmental" },
+                { q: "What is the purpose of customer relationship management (CRM)?", options: ["Increase product pricing", "Manage and improve customer interactions", "Decrease production costs", "Monitor competitor activity"], answer: "Manage and improve customer interactions" },
+                { q: "What does PPC stand for in online advertising?", options: ["Pay Per Click", "Product Price Control", "Public Promotion Campaign", "Performance Process Chart"], answer: "Pay Per Click" },
+                { q: "What is the first step in the marketing research process?", options: ["Collecting data", "Analyzing competition", "Identifying the problem", "Testing hypotheses"], answer: "Identifying the problem" },
+                { q: "Which type of promotion relies on word-of-mouth marketing?", options: ["Personal selling", "Viral marketing", "Telemarketing", "Print advertising"], answer: "Viral marketing" },
+                { q: "What is the term for a loyal customer who actively promotes a brand?", options: ["Brand advocate", "Influencer", "Loyal customer", "Salesperson"], answer: "Brand advocate" },
+                { q: "Which metric measures the percentage of visitors who leave a website without taking action?", options: ["Conversion rate", "Bounce rate", "Click-through rate", "Engagement rate"], answer: "Bounce rate" },
+                { q: "Which of the following is a primary research method?", options: ["Analyzing industry reports", "Reading customer reviews", "Conducting surveys", "Studying competitors"], answer: "Conducting surveys" },
+                { q: "What is the marketing term for offering a limited-time discount to attract customers?", options: ["Seasonal pricing", "Flash sale", "Cost-plus pricing", "Everyday low pricing"], answer: "Flash sale" },
+                { q: "Which type of content marketing uses informative articles and blog posts to attract customers?", options: ["Paid advertising", "Print marketing", "Content marketing", "Cold calling"], answer: "Content marketing" }
+            ],
+            "drawing": [
+                { q: "Which element of art refers to the lightness or darkness of a color?", options: ["Hue", "Value", "Saturation", "Contrast"], answer: "Value" },
+                { q: "What are the primary colors?", options: ["Red, Blue, Yellow", "Red, Green, Blue", "Yellow, Green, Orange", "Blue, Purple, Pink"], answer: "Red, Blue, Yellow" },
+                { q: "Which famous artist painted the Mona Lisa?", options: ["Leonardo da Vinci", "Pablo Picasso", "Vincent van Gogh", "Claude Monet"], answer: "Leonardo da Vinci" },
+                { q: "Which medium is commonly used in watercolor painting?", options: ["Canvas", "Thick paper", "Wood", "Metal"], answer: "Thick paper" },
+                { q: "What is the term for a quick, rough drawing that captures the main features of a subject?", options: ["Sketch", "Doodle", "Blueprint", "Etching"], answer: "Sketch" },
+                { q: "Which art movement is Salvador Dalí associated with?", options: ["Cubism", "Surrealism", "Impressionism", "Realism"], answer: "Surrealism" },
+                { q: "What is a complementary color of blue?", options: ["Green", "Yellow", "Orange", "Red"], answer: "Orange" },
+                { q: "Which of the following is a dry drawing medium?", options: ["Acrylic", "Charcoal", "Watercolor", "Oil paint"], answer: "Charcoal" },
+                { q: "Which perspective technique creates the illusion of depth in a drawing?", options: ["Cross-hatching", "One-point perspective", "Stippling", "Blending"], answer: "One-point perspective" },
+                { q: "What is the term for the arrangement of visual elements in an artwork?", options: ["Composition", "Texture", "Sketching", "Pattern"], answer: "Composition" },
+                { q: "What does 'hatching' refer to in drawing?", options: ["A shading technique using parallel lines", "Blending colors smoothly", "Using dots to create texture", "Applying thick paint"], answer: "A shading technique using parallel lines" },
+                { q: "Which tool is commonly used for blending pencil shading?", options: ["Eraser", "Blending stump", "Sharpener", "Ruler"], answer: "Blending stump" },
+                { q: "What is the main advantage of using graphite pencils in drawing?", options: ["Water resistance", "Easy to erase and blend", "Permanent marks", "Bright colors"], answer: "Easy to erase and blend" },
+                { q: "Which term describes a painting made with pigment suspended in water?", options: ["Acrylic", "Oil painting", "Watercolor", "Fresco"], answer: "Watercolor" },
+                { q: "Which of the following is an example of warm colors?", options: ["Blue, Green, Purple", "Red, Orange, Yellow", "Black, White, Gray", "Pink, Violet, Blue"], answer: "Red, Orange, Yellow" },
+                { q: "Which famous artist is known for cutting and assembling colored paper collages?", options: ["Henri Matisse", "Jackson Pollock", "Frida Kahlo", "Edvard Munch"], answer: "Henri Matisse" },
+                { q: "What does the term 'negative space' refer to in art?", options: ["The area occupied by the subject", "The empty space around the subject", "A dark color palette", "A type of abstract painting"], answer: "The empty space around the subject" },
+                { q: "What is a still life drawing?", options: ["A drawing of moving objects", "A drawing of landscapes", "A drawing of inanimate objects", "A drawing of people"], answer: "A drawing of inanimate objects" },
+                { q: "Which pencil grade is the softest for sketching?", options: ["2H", "HB", "4B", "6H"], answer: "4B" },
+                { q: "What is the term for an artist’s signature style or personal touch in artwork?", options: ["Motif", "Trademark", "Signature", "Brushwork"], answer: "Brushwork" }
+            ],
+            "painting": [
+                { q: "Who painted the Mona Lisa?", options: ["Leonardo da Vinci", "Vincent van Gogh", "Pablo Picasso", "Claude Monet"], answer: "Leonardo da Vinci" },
+                { q: "Which art movement is Salvador Dalí associated with?", options: ["Surrealism", "Impressionism", "Cubism", "Expressionism"], answer: "Surrealism" },
+                { q: "What is the primary medium used in fresco painting?", options: ["Oil paint", "Watercolor", "Wet plaster", "Acrylic"], answer: "Wet plaster" },
+                { q: "Which of these colors is a primary color?", options: ["Green", "Red", "Purple", "Orange"], answer: "Red" },
+                { q: "What is the technique of mixing wet paint into wet paint called?", options: ["Scumbling", "Impasto", "Glazing", "Wet-on-wet"], answer: "Wet-on-wet" },
+                { q: "Which artist is famous for his 'Starry Night' painting?", options: ["Claude Monet", "Vincent van Gogh", "Pablo Picasso", "Edvard Munch"], answer: "Vincent van Gogh" },
+                { q: "What does the term 'chiaroscuro' refer to in painting?", options: ["Use of vibrant colors", "Use of strong contrasts between light and dark", "A type of canvas", "A specific painting brush"], answer: "Use of strong contrasts between light and dark" },
+                { q: "What is the binder used in oil paints?", options: ["Water", "Egg yolk", "Linseed oil", "Gum Arabic"], answer: "Linseed oil" },
+                { q: "Which period is known for its realistic and detailed religious paintings?", options: ["Baroque", "Renaissance", "Modernism", "Impressionism"], answer: "Renaissance" },
+                { q: "What is the term for a painting done on a freshly plastered wall?", options: ["Fresco", "Tempera", "Oil painting", "Encaustic"], answer: "Fresco" },
+                { q: "Which artist is known for creating the Cubist movement?", options: ["Pablo Picasso", "Leonardo da Vinci", "Jackson Pollock", "Rembrandt"], answer: "Pablo Picasso" },
+                { q: "What is a monochrome painting?", options: ["A painting using only one color", "A painting with many colors", "A painting with no color", "A 3D painting"], answer: "A painting using only one color" },
+                { q: "What is the purpose of gesso in painting?", options: ["To clean brushes", "To prime a canvas", "To mix colors", "To seal a painting"], answer: "To prime a canvas" },
+                { q: "Which type of painting uses melted wax as a medium?", options: ["Watercolor", "Encaustic", "Acrylic", "Fresco"], answer: "Encaustic" },
+                { q: "Who painted 'The Persistence of Memory'?", options: ["Edvard Munch", "Claude Monet", "Salvador Dalí", "Michelangelo"], answer: "Salvador Dalí" },
+                { q: "What does the term 'sfumato' mean in painting?", options: ["A painting technique for soft transitions", "A type of brushstroke", "A type of paint", "A type of perspective"], answer: "A painting technique for soft transitions" },
+                { q: "What is the process of applying thick layers of paint to create texture?", options: ["Glazing", "Impasto", "Scumbling", "Stippling"], answer: "Impasto" },
+                { q: "Which famous artist is known for his colorful pop art paintings?", options: ["Andy Warhol", "Claude Monet", "Paul Cézanne", "Frida Kahlo"], answer: "Andy Warhol" },
+                { q: "Which of these is a famous Japanese painting style?", options: ["Sumi-e", "Impressionism", "Pointillism", "Cubism"], answer: "Sumi-e" },
+                { q: "What is the primary ingredient in watercolor paint?", options: ["Linseed oil", "Acrylic polymer", "Gum Arabic", "Turpentine"], answer: "Gum Arabic" }
+            ], "teaching": [
+                { q: "Which of the following is a student-centered teaching method?", options: ["Lecture", "Demonstration", "Project-based learning", "Direct instruction"], answer: "Project-based learning" },
+                { q: "What does 'Bloom's Taxonomy' classify?", options: ["Types of assessment", "Levels of cognitive learning", "Different learning styles", "Teaching strategies"], answer: "Levels of cognitive learning" },
+                { q: "Which of these is an example of formative assessment?", options: ["Final exam", "Midterm test", "Pop quiz", "Term-end project"], answer: "Pop quiz" },
+                { q: "The 'Constructivist' approach to teaching emphasizes:", options: ["Memorization", "Active student involvement", "Teacher-centered learning", "Passive listening"], answer: "Active student involvement" },
+                { q: "Which teaching method involves hands-on learning?", options: ["Lecture", "Role-playing", "Case study", "Experimentation"], answer: "Experimentation" },
+                { q: "What is the most effective way to handle a disruptive student?", options: ["Ignore the behavior", "Scold in front of classmates", "Use positive reinforcement", "Send the student out"], answer: "Use positive reinforcement" },
+                { q: "Which of the following is a characteristic of an effective teacher?", options: ["Strict discipline", "Authoritarian approach", "Good communication skills", "Rigid lesson plans"], answer: "Good communication skills" },
+                { q: "The best way to accommodate different learning styles in a classroom is to:", options: ["Use only visual aids", "Provide multiple modes of instruction", "Rely on textbooks", "Teach at a fast pace"], answer: "Provide multiple modes of instruction" },
+                { q: "Which learning theory is based on rewards and punishments?", options: ["Behaviorism", "Constructivism", "Cognitivism", "Humanism"], answer: "Behaviorism" },
+                { q: "Who is known as the father of modern education?", options: ["John Dewey", "Jean Piaget", "Paulo Freire", "Johann Pestalozzi"], answer: "John Dewey" },
+                { q: "A teacher using scaffolding is:", options: ["Providing structured support to help learning", "Giving direct answers to students", "Assigning extra homework", "Only using lectures"], answer: "Providing structured support to help learning" },
+                { q: "The main goal of differentiated instruction is to:", options: ["Make students learn at the same pace", "Adapt teaching to meet students' needs", "Use only one teaching strategy", "Increase teacher workload"], answer: "Adapt teaching to meet students' needs" },
+                { q: "Which of the following is a major challenge in online learning?", options: ["Lack of internet access", "More teacher interaction", "Too many classroom activities", "Increased student engagement"], answer: "Lack of internet access" },
+                { q: "Metacognition refers to:", options: ["Memorizing facts", "Thinking about one's own thinking", "Teaching without assessment", "Only focusing on grades"], answer: "Thinking about one's own thinking" },
+                { q: "Which is the best way to assess higher-order thinking skills?", options: ["Multiple-choice tests", "Essay writing", "True/false quizzes", "Fill-in-the-blank tests"], answer: "Essay writing" },
+                { q: "The best way to encourage creativity in students is by:", options: ["Providing open-ended questions", "Focusing only on textbook learning", "Avoiding group discussions", "Limiting free-thinking"], answer: "Providing open-ended questions" },
+                { q: "Active learning techniques include:", options: ["Listening to lectures", "Participating in debates", "Reading silently", "Copying notes"], answer: "Participating in debates" },
+                { q: "What is the purpose of formative assessment?", options: ["To grade students", "To provide ongoing feedback", "To rank students", "To finalize marks"], answer: "To provide ongoing feedback" },
+                { q: "Which of the following is a student-centered assessment method?", options: ["Traditional testing", "Peer review", "One-time quiz", "Fixed grading system"], answer: "Peer review" },
+                { q: "Which of these is an example of intrinsic motivation?", options: ["Studying to get a good grade", "Reading because you enjoy it", "Doing homework for rewards", "Competing for a prize"], answer: "Reading because you enjoy it" }
+            ],
+            "startups": [
+                { q: "What is the primary goal of a startup?", options: ["Stable revenue", "Rapid growth", "Government funding", "Minimum expenses"], answer: "Rapid growth" },
+                { q: "Which of the following is an essential characteristic of a startup?", options: ["Predictable market", "High scalability", "Low risk", "Immediate profit"], answer: "High scalability" },
+                { q: "What is a Minimum Viable Product (MVP)?", options: ["A finished product", "A prototype with essential features", "An expensive product", "A marketing strategy"], answer: "A prototype with essential features" },
+                { q: "Which funding stage typically comes first for startups?", options: ["Series A", "Seed funding", "IPO", "Venture Capital"], answer: "Seed funding" },
+                { q: "Which of these is an example of a successful startup?", options: ["Amazon", "Google", "Airbnb", "All of the above"], answer: "All of the above" },
+                { q: "What is a pitch deck?", options: ["A financial statement", "A business presentation for investors", "A social media campaign", "A company logo"], answer: "A business presentation for investors" },
+                { q: "Which factor is most important for startup success?", options: ["Funding", "Market timing", "Business location", "Number of employees"], answer: "Market timing" },
+                { q: "What is bootstrapping in startups?", options: ["Using personal savings and revenue", "Getting venture capital", "Hiring a large team", "Expanding globally"], answer: "Using personal savings and revenue" },
+                { q: "What does 'pivot' mean in a startup?", options: ["Staying with the same business model", "Changing strategy based on feedback", "Scaling down operations", "Selling the company"], answer: "Changing strategy based on feedback" },
+                { q: "Which legal structure is most common for startups?", options: ["Sole proprietorship", "LLC", "Nonprofit", "Government entity"], answer: "LLC" },
+                { q: "Which term refers to the total value of a startup?", options: ["Profit", "Valuation", "Revenue", "Equity"], answer: "Valuation" },
+                { q: "What is an equity stake?", options: ["A loan", "Ownership percentage in a company", "A type of tax", "An employee benefit"], answer: "Ownership percentage in a company" },
+                { q: "Which of these is an example of a B2B startup?", options: ["Uber", "Slack", "Instagram", "TikTok"], answer: "Slack" },
+                { q: "What does the term 'runway' mean in a startup?", options: ["A startup’s marketing strategy", "The time a startup can survive without additional funding", "A company’s office space", "The time before launching a product"], answer: "The time a startup can survive without additional funding" },
+                { q: "Which of the following is NOT a source of startup funding?", options: ["Angel investors", "Venture capital", "Stock dividends", "Crowdfunding"], answer: "Stock dividends" },
+                { q: "What is the role of an incubator in startups?", options: ["Providing early-stage support and mentorship", "Giving funding in exchange for equity", "Helping with marketing", "Hiring employees"], answer: "Providing early-stage support and mentorship" },
+                { q: "What is a unicorn startup?", options: ["A startup valued at $1 billion or more", "A startup with a unique idea", "A government-funded startup", "A startup that failed"], answer: "A startup valued at $1 billion or more" },
+                { q: "What is the main purpose of a business model?", options: ["To show the company logo", "To outline how the startup makes money", "To hire employees", "To raise funds"], answer: "To outline how the startup makes money" },
+                { q: "Which of these is an example of a startup accelerator?", options: ["Y Combinator", "Google", "Tesla", "Apple"], answer: "Y Combinator" },
+                { q: "Which of the following best defines 'scaling' in startups?", options: ["Hiring more employees", "Expanding operations while maintaining efficiency", "Reducing business size", "Launching a new product"], answer: "Expanding operations while maintaining efficiency" }
+            ],
+            "business": [
+                { q: "What is the main objective of a business?", options: ["Profit", "Charity", "Government control", "Social work"], answer: "Profit" },
+                { q: "Which of the following is a type of business ownership?", options: ["Sole proprietorship", "Democracy", "Monarchy", "Federalism"], answer: "Sole proprietorship" },
+                { q: "Which department is responsible for hiring employees?", options: ["Finance", "Human Resources", "Marketing", "Production"], answer: "Human Resources" },
+                { q: "What does GDP stand for?", options: ["Gross Domestic Product", "Global Development Plan", "General Data Protection", "Government Development Policy"], answer: "Gross Domestic Product" },
+                { q: "Which financial statement shows a company's profits and losses?", options: ["Balance Sheet", "Cash Flow Statement", "Income Statement", "Budget"], answer: "Income Statement" },
+                { q: "What is a market economy based on?", options: ["Government decisions", "Traditional practices", "Consumer choices", "Central planning"], answer: "Consumer choices" },
+                { q: "What is the full form of CEO?", options: ["Chief Economic Officer", "Chief Executive Officer", "Chief Energy Officer", "Corporate Executive Officer"], answer: "Chief Executive Officer" },
+                { q: "Which of the following is NOT a factor of production?", options: ["Land", "Labour", "Capital", "Marketing"], answer: "Marketing" },
+                { q: "Which business structure provides limited liability to its owners?", options: ["Sole proprietorship", "Partnership", "Corporation", "Franchise"], answer: "Corporation" },
+                { q: "What is the process of setting objectives and deciding how to achieve them?", options: ["Controlling", "Planning", "Organizing", "Directing"], answer: "Planning" },
+                { q: "Which of the following is an intangible asset?", options: ["Building", "Machinery", "Patent", "Cash"], answer: "Patent" },
+                { q: "What is the primary role of marketing?", options: ["Product manufacturing", "Employee hiring", "Customer satisfaction", "Tax collection"], answer: "Customer satisfaction" },
+                { q: "What is an example of a liability?", options: ["Cash", "Inventory", "Bank Loan", "Equipment"], answer: "Bank Loan" },
+                { q: "Which pricing strategy sets a high initial price and lowers it over time?", options: ["Penetration pricing", "Skimming pricing", "Competitive pricing", "Loss leader pricing"], answer: "Skimming pricing" },
+                { q: "Which document outlines a company's goals and how it plans to achieve them?", options: ["Contract", "Invoice", "Business Plan", "Stock Report"], answer: "Business Plan" },
+                { q: "What is the term for selling a product below cost to attract customers?", options: ["Price fixing", "Loss leader", "Premium pricing", "Dynamic pricing"], answer: "Loss leader" },
+                { q: "What does SWOT analysis stand for?", options: ["Strengths, Weaknesses, Opportunities, Threats", "Sales, Work, Operations, Targets", "System, Workforce, Organization, Time", "Success, Wealth, Opportunities, Talent"], answer: "Strengths, Weaknesses, Opportunities, Threats" },
+                { q: "Which of the following is a legal document used to form a company?", options: ["Business Proposal", "Memorandum of Association", "Market Research Report", "Advertisement"], answer: "Memorandum of Association" },
+                { q: "What is an entrepreneur?", options: ["A government employee", "A person who starts and manages a business", "A shareholder", "An accountant"], answer: "A person who starts and manages a business" },
+                { q: "What is working capital?", options: ["Total assets", "Total liabilities", "Current assets minus current liabilities", "Revenue minus expenses"], answer: "Current assets minus current liabilities" }
+            ],
+            "agriculture": [
+                { q: "Which gas is essential for photosynthesis?", options: ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"], answer: "Carbon dioxide" },
+                { q: "Which of the following is a primary nutrient for plants?", options: ["Zinc", "Nitrogen", "Iron", "Manganese"], answer: "Nitrogen" },
+                { q: "What is the process of growing plants without soil called?", options: ["Hydroponics", "Aeroponics", "Aquaponics", "Terraponics"], answer: "Hydroponics" },
+                { q: "Which type of soil is best suited for growing rice?", options: ["Sandy", "Clayey", "Loamy", "Gravelly"], answer: "Clayey" },
+                { q: "Which crop is known as the 'Golden Fiber'?", options: ["Cotton", "Jute", "Silk", "Wool"], answer: "Jute" },
+                { q: "Which element is responsible for chlorophyll formation?", options: ["Iron", "Magnesium", "Phosphorus", "Calcium"], answer: "Magnesium" },
+                { q: "Which is the most widely grown cereal crop in the world?", options: ["Rice", "Maize", "Wheat", "Barley"], answer: "Maize" },
+                { q: "Which irrigation method is the most water-efficient?", options: ["Flood irrigation", "Sprinkler irrigation", "Drip irrigation", "Canal irrigation"], answer: "Drip irrigation" },
+                { q: "Which of the following is a Rabi crop?", options: ["Rice", "Wheat", "Maize", "Millets"], answer: "Wheat" },
+                { q: "Which pest is commonly found in cotton crops?", options: ["Aphids", "Bollworm", "Whitefly", "Stem borer"], answer: "Bollworm" },
+                { q: "Which vitamin is rich in carrots?", options: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"], answer: "Vitamin A" },
+                { q: "Which is the largest producer of tea in the world?", options: ["India", "China", "Sri Lanka", "Kenya"], answer: "China" },
+                { q: "What is the main component of cow dung manure?", options: ["Nitrogen", "Phosphorus", "Potassium", "Organic matter"], answer: "Organic matter" },
+                { q: "What is the common name for green manure?", options: ["Organic compost", "Cover crops", "Bio-fertilizer", "Pesticide"], answer: "Cover crops" },
+                { q: "Which fruit crop requires the most water for cultivation?", options: ["Banana", "Mango", "Guava", "Papaya"], answer: "Banana" },
+                { q: "Which term is used for the removal of weeds?", options: ["Harvesting", "Tilling", "Weeding", "Pruning"], answer: "Weeding" },
+                { q: "Which bacteria is used in nitrogen fixation?", options: ["Rhizobium", "Lactobacillus", "E. coli", "Salmonella"], answer: "Rhizobium" },
+                { q: "What is the ideal pH range for most crops?", options: ["4.5 - 5.5", "5.5 - 6.5", "6.0 - 7.5", "7.5 - 8.5"], answer: "6.0 - 7.5" },
+                { q: "Which part of the plant is used to produce sugar?", options: ["Leaves", "Root", "Stem", "Flower"], answer: "Stem" },
+                { q: "Which is the most common greenhouse gas produced by agriculture?", options: ["Carbon dioxide", "Methane", "Nitrogen dioxide", "Sulfur dioxide"], answer: "Methane" }
+            ],
+            "genetics": [
+                { q: "Who is known as the father of genetics?", options: ["Charles Darwin", "Gregor Mendel", "Watson & Crick", "Rosalind Franklin"], answer: "Gregor Mendel" },
+                { q: "What is the basic unit of heredity?", options: ["Chromosome", "DNA", "Gene", "Protein"], answer: "Gene" },
+                { q: "Which nitrogenous base is found in RNA but not in DNA?", options: ["Adenine", "Thymine", "Uracil", "Cytosine"], answer: "Uracil" },
+                { q: "Which type of RNA carries amino acids to ribosomes?", options: ["mRNA", "tRNA", "rRNA", "snRNA"], answer: "tRNA" },
+                { q: "How many chromosomes do humans have?", options: ["23", "46", "22", "44"], answer: "46" },
+                { q: "What is the term for different versions of the same gene?", options: ["Chromatids", "Loci", "Alleles", "Haploids"], answer: "Alleles" },
+                { q: "Which of the following is a sex-linked disorder?", options: ["Sickle cell anemia", "Hemophilia", "Cystic fibrosis", "Thalassemia"], answer: "Hemophilia" },
+                { q: "What is the process of copying DNA called?", options: ["Transcription", "Translation", "Replication", "Mutation"], answer: "Replication" },
+                { q: "Which enzyme unzips the DNA during replication?", options: ["Polymerase", "Ligase", "Helicase", "Primase"], answer: "Helicase" },
+                { q: "What is the shape of the DNA molecule?", options: ["Single helix", "Double helix", "Triple helix", "Linear"], answer: "Double helix" },
+                { q: "Which type of mutation does not change the amino acid sequence?", options: ["Missense", "Nonsense", "Silent", "Frameshift"], answer: "Silent" },
+                { q: "What is the genetic disorder caused by an extra chromosome 21?", options: ["Turner syndrome", "Down syndrome", "Klinefelter syndrome", "Sickle cell anemia"], answer: "Down syndrome" },
+                { q: "Which law of Mendel states that alleles separate during gamete formation?", options: ["Law of Dominance", "Law of Segregation", "Law of Independent Assortment", "Law of Linkage"], answer: "Law of Segregation" },
+                { q: "Which of the following is an autosomal dominant disorder?", options: ["Cystic fibrosis", "Huntington’s disease", "Hemophilia", "Tay-Sachs disease"], answer: "Huntington’s disease" },
+                { q: "What is the term for a change in the DNA sequence?", options: ["Translation", "Mutation", "Transcription", "Recombination"], answer: "Mutation" },
+                { q: "Which structure holds sister chromatids together?", options: ["Telomere", "Centromere", "Histone", "Chromatid"], answer: "Centromere" },
+                { q: "What is a karyotype used for?", options: ["Determining blood type", "Identifying chromosome abnormalities", "Measuring gene expression", "Cloning genes"], answer: "Identifying chromosome abnormalities" },
+                { q: "What is the complementary strand for the DNA sequence ATGC?", options: ["TACG", "ATGC", "GCTA", "CGTA"], answer: "TACG" },
+                { q: "Which scientist discovered that DNA is the genetic material?", options: ["Watson & Crick", "Hershey & Chase", "Gregor Mendel", "Rosalind Franklin"], answer: "Hershey & Chase" },
+                { q: "What is the term for genes located on the same chromosome?", options: ["Linked genes", "Dominant genes", "Recessive genes", "Mutated genes"], answer: "Linked genes" }
+            ],
+            "developer": [
+                { q: "Which language is primarily used for web development?", options: ["Python", "Java", "JavaScript", "C++"], answer: "JavaScript" },
+                { q: "What does HTML stand for?", options: ["Hyper Transfer Markup Language", "Hyper Text Markup Language", "Hyperlink Text Management Language", "High-Level Text Markup Language"], answer: "Hyper Text Markup Language" },
+                { q: "Which of the following is a JavaScript framework?", options: ["React", "Django", "Laravel", "Spring"], answer: "React" },
+                { q: "What does CSS stand for?", options: ["Cascading Style Sheets", "Computer Styling System", "Creative Style Syntax", "Coded Style Structure"], answer: "Cascading Style Sheets" },
+                { q: "Which of these is a version control system?", options: ["Jenkins", "Git", "Docker", "Node.js"], answer: "Git" },
+                { q: "Which HTTP method is used to submit data to be processed to a specified resource?", options: ["GET", "POST", "PUT", "DELETE"], answer: "POST" },
+                { q: "Which SQL command is used to retrieve data from a database?", options: ["GET", "SELECT", "FETCH", "QUERY"], answer: "SELECT" },
+                { q: "Which of the following is a NoSQL database?", options: ["MySQL", "PostgreSQL", "MongoDB", "SQLite"], answer: "MongoDB" },
+                { q: "Which function is used to print output in JavaScript?", options: ["console.print()", "print()", "console.log()", "log.print()"], answer: "console.log()" },
+                { q: "Which symbol is used for single-line comments in JavaScript?", options: ["//", "/*", "#", "--"], answer: "//" },
+                { q: "Which of the following is not a programming language?", options: ["Ruby", "Swift", "C#", "HTML"], answer: "HTML" },
+                { q: "Which company developed the Python programming language?", options: ["Microsoft", "Google", "Apple", "Guido van Rossum"], answer: "Guido van Rossum" },
+                { q: "Which of the following is used to style web pages?", options: ["HTML", "CSS", "Java", "SQL"], answer: "CSS" },
+                { q: "Which JavaScript keyword is used to declare a constant variable?", options: ["var", "let", "const", "define"], answer: "const" },
+                { q: "Which tool is used to automate software builds and deployment?", options: ["Git", "Docker", "Jenkins", "Kubernetes"], answer: "Jenkins" },
+                { q: "Which of the following is a front-end JavaScript framework?", options: ["Node.js", "Express.js", "Angular", "Django"], answer: "Angular" },
+                { q: "What does API stand for?", options: ["Advanced Programming Interface", "Application Programming Interface", "Automated Process Integration", "Applied Protocol Interface"], answer: "Application Programming Interface" },
+                { q: "Which JavaScript method is used to convert a JSON string into an object?", options: ["JSON.parse()", "JSON.stringify()", "JSON.toObject()", "JSON.convert()"], answer: "JSON.parse()" },
+                { q: "Which keyword is used to define an asynchronous function in JavaScript?", options: ["async", "await", "setTimeout", "defer"], answer: "async" },
+                { q: "Which of the following is a package manager for JavaScript?", options: ["npm", "pip", "composer", "bundler"], answer: "npm" }
+            ],
+            "photography": [
+                { q: "What does DSLR stand for?", options: ["Digital Single Lens Reflex", "Dual System Light Recorder", "Dynamic Shutter Lens Rotation", "Digital Shutter Lens Reflex"], answer: "Digital Single Lens Reflex" },
+                { q: "Which camera setting controls the amount of light entering the lens?", options: ["ISO", "Shutter Speed", "Aperture", "White Balance"], answer: "Aperture" },
+                { q: "What is the 'golden hour' in photography?", options: ["The hour before noon", "The first and last hour of sunlight", "Midnight photography time", "A filter effect in editing"], answer: "The first and last hour of sunlight" },
+                { q: "Which of the following affects motion blur in an image?", options: ["ISO", "Aperture", "Shutter Speed", "White Balance"], answer: "Shutter Speed" },
+                { q: "Which ISO setting is best for low-light photography?", options: ["100", "200", "800", "3200"], answer: "3200" },
+                { q: "What is the rule of thirds in photography?", options: ["A rule for choosing the best camera", "A technique for composing an image", "A rule for exposure settings", "A software feature in editing"], answer: "A technique for composing an image" },
+                { q: "Which of these is a prime lens?", options: ["50mm f/1.8", "18-55mm f/3.5-5.6", "70-200mm f/2.8", "24-70mm f/2.8"], answer: "50mm f/1.8" },
+                { q: "Which camera mode allows the photographer full control over settings?", options: ["Auto", "Aperture Priority", "Shutter Priority", "Manual"], answer: "Manual" },
+                { q: "What is 'bokeh' in photography?", options: ["A type of lens", "The out-of-focus blur effect", "A camera brand", "A technique for sharp images"], answer: "The out-of-focus blur effect" },
+                { q: "Which of the following is NOT a common camera sensor size?", options: ["Full Frame", "APS-C", "Micro Four Thirds", "Ultra Wide"], answer: "Ultra Wide" },
+                { q: "What is the purpose of a polarizing filter?", options: ["Increase exposure", "Reduce reflections and glare", "Improve autofocus", "Change white balance"], answer: "Reduce reflections and glare" },
+                { q: "Which file format retains the most image details?", options: ["JPEG", "PNG", "RAW", "TIFF"], answer: "RAW" },
+                { q: "Which focal length is typically considered a 'wide-angle' lens?", options: ["10mm", "35mm", "50mm", "85mm"], answer: "10mm" },
+                { q: "Which color temperature is closest to daylight?", options: ["2700K", "3200K", "5500K", "10000K"], answer: "5500K" },
+                { q: "What is the primary function of a tripod?", options: ["To hold a flash", "To stabilize the camera", "To change the focal length", "To store camera lenses"], answer: "To stabilize the camera" },
+                { q: "What does 'fps' stand for in video recording?", options: ["Focus per second", "Frames per second", "Focal point setting", "Fast processing speed"], answer: "Frames per second" },
+                { q: "Which lens is best for portrait photography?", options: ["18mm", "50mm", "200mm", "600mm"], answer: "50mm" },
+                { q: "What is the purpose of a 'light meter' in photography?", options: ["To measure ambient light levels", "To adjust color balance", "To set the shutter speed", "To detect focus points"], answer: "To measure ambient light levels" },
+                { q: "Which of these is an example of a leading line in photography?", options: ["A subject in the center", "A road leading into the distance", "A blurred background", "A high ISO setting"], answer: "A road leading into the distance" },
+                { q: "What is the main advantage of a mirrorless camera over a DSLR?", options: ["Better zoom", "Smaller size and weight", "Longer battery life", "Faster film processing"], answer: "Smaller size and weight" }
+            ],
+            "police": [
+                { q: "What is the primary duty of a police officer?", options: ["Enforce laws", "Give speeches", "File taxes", "Teach students"], answer: "Enforce laws" },
+                { q: "Which amendment in the U.S. Constitution protects against unreasonable searches and seizures?", options: ["1st", "4th", "5th", "10th"], answer: "4th" },
+                { q: "What is the emergency contact number for police in the U.S.?", options: ["911", "112", "999", "101"], answer: "911" },
+                { q: "Which of the following is an example of a non-lethal weapon used by police?", options: ["Taser", "Pistol", "Rifle", "Shotgun"], answer: "Taser" },
+                { q: "What does 'Miranda Rights' protect?", options: ["Right to remain silent", "Right to vote", "Right to drive", "Right to own property"], answer: "Right to remain silent" },
+                { q: "What does 'K9 Unit' refer to in policing?", options: ["Mounted police", "SWAT team", "Police dogs", "Cyber crime unit"], answer: "Police dogs" },
+                { q: "Which agency is responsible for investigating federal crimes in the U.S.?", options: ["FBI", "CIA", "NSA", "DEA"], answer: "FBI" },
+                { q: "What is a suspect called after being formally charged with a crime?", options: ["Defendant", "Plaintiff", "Witness", "Detective"], answer: "Defendant" },
+                { q: "Which body part is used for fingerprint identification?", options: ["Nose", "Ear", "Finger", "Tongue"], answer: "Finger" },
+                { q: "What is the rank below Chief of Police?", options: ["Captain", "Sergeant", "Lieutenant", "Deputy"], answer: "Captain" },
+                { q: "Which international organization helps police fight global crime?", options: ["Interpol", "WHO", "UNESCO", "WTO"], answer: "Interpol" },
+                { q: "What is the primary goal of community policing?", options: ["Building trust with the public", "Increasing punishments", "Raising taxes", "Reducing training"], answer: "Building trust with the public" },
+                { q: "Which crime involves intentionally setting fire to property?", options: ["Arson", "Burglary", "Theft", "Assault"], answer: "Arson" },
+                { q: "What is the term for a police operation to catch criminals in the act?", options: ["Stakeout", "Surveillance", "Undercover", "Raid"], answer: "Raid" },
+                { q: "What is the purpose of a police 'breathalyzer'?", options: ["Measure alcohol levels", "Check fingerprints", "Detect drugs", "Scan ID cards"], answer: "Measure alcohol levels" },
+                { q: "Which of these crimes is considered a felony?", options: ["Murder", "Littering", "Jaywalking", "Speeding"], answer: "Murder" },
+                { q: "What color are standard police sirens?", options: ["Red and blue", "Green and yellow", "White and black", "Orange and purple"], answer: "Red and blue" },
+                { q: "What is the role of a detective in a police department?", options: ["Investigate crimes", "Give traffic tickets", "Train police dogs", "Direct traffic"], answer: "Investigate crimes" },
+                { q: "What is a police baton primarily used for?", options: ["Self-defense", "Writing reports", "Measuring distance", "Giving directions"], answer: "Self-defense" },
+                { q: "Which legal document allows police to search private property?", options: ["Search warrant", "Arrest warrant", "Affidavit", "Subpoena"], answer: "Search warrant" }
+            ],
+            "IAS": [
+                { q: "Who is known as the Father of the Indian Constitution?", options: ["Mahatma Gandhi", "B. R. Ambedkar", "Sardar Patel", "Jawaharlal Nehru"], answer: "B. R. Ambedkar" },
+                { q: "What is the capital of Arunachal Pradesh?", options: ["Itanagar", "Dispur", "Kohima", "Aizawl"], answer: "Itanagar" },
+                { q: "Which Article of the Indian Constitution deals with Fundamental Rights?", options: ["Article 12-35", "Article 36-51", "Article 52-78", "Article 79-122"], answer: "Article 12-35" },
+                { q: "Which is the largest river in India?", options: ["Yamuna", "Brahmaputra", "Ganga", "Godavari"], answer: "Ganga" },
+                { q: "Who was the first President of India?", options: ["Dr. Rajendra Prasad", "S. Radhakrishnan", "Zakir Husain", "V. V. Giri"], answer: "Dr. Rajendra Prasad" },
+                { q: "When was the Reserve Bank of India established?", options: ["1935", "1947", "1950", "1962"], answer: "1935" },
+                { q: "Which is the highest civilian award in India?", options: ["Padma Shri", "Padma Bhushan", "Padma Vibhushan", "Bharat Ratna"], answer: "Bharat Ratna" },
+                { q: "What is the tenure of a Rajya Sabha member?", options: ["4 years", "5 years", "6 years", "7 years"], answer: "6 years" },
+                { q: "Who was the first woman Prime Minister of India?", options: ["Sonia Gandhi", "Indira Gandhi", "Sarojini Naidu", "Pratibha Patil"], answer: "Indira Gandhi" },
+                { q: "Which is the longest national highway in India?", options: ["NH 7", "NH 44", "NH 8", "NH 1"], answer: "NH 44" },
+                { q: "Which planet is known as the Red Planet?", options: ["Mercury", "Venus", "Mars", "Jupiter"], answer: "Mars" },
+                { q: "Who discovered the law of gravity?", options: ["Albert Einstein", "Isaac Newton", "Galileo Galilei", "Nikola Tesla"], answer: "Isaac Newton" },
+                { q: "Which gas is most abundant in Earth's atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Helium"], answer: "Nitrogen" },
+                { q: "What is the capital of Bangladesh?", options: ["Colombo", "Kathmandu", "Thimphu", "Dhaka"], answer: "Dhaka" },
+                { q: "Which year did India gain independence?", options: ["1945", "1947", "1950", "1952"], answer: "1947" },
+                { q: "Who wrote the book 'Discovery of India'?", options: ["Rabindranath Tagore", "Mahatma Gandhi", "Jawaharlal Nehru", "Dr. B. R. Ambedkar"], answer: "Jawaharlal Nehru" },
+                { q: "Which is the largest desert in the world?", options: ["Sahara", "Gobi", "Kalahari", "Thar"], answer: "Sahara" },
+                { q: "What is the full form of GDP?", options: ["Gross Domestic Product", "Gross Development Plan", "General Domestic Policy", "Global Domestic Production"], answer: "Gross Domestic Product" },
+                { q: "Which Indian state has the highest literacy rate?", options: ["Tamil Nadu", "Kerala", "Goa", "Maharashtra"], answer: "Kerala" },
+                { q: "Who was the first Indian to go to space?", options: ["Rakesh Sharma", "Kalpana Chawla", "Vikram Sarabhai", "Satish Dhawan"], answer: "Rakesh Sharma" }
+            ]
+
+
+        };
+
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function startQuiz() {
+            const selectedGroup = document.getElementById("groupSelect").value;
+            currentQuestions = questions[selectedGroup];
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById("quizContainer").classList.remove("hidden");
+            showQuestion();
+        }
+
+        function showQuestion() {
+        	  if (currentQuestionIndex < currentQuestions.length) {
+        	    const questionObj = currentQuestions[currentQuestionIndex];
+        	    document.getElementById("questionText").innerText = questionObj.q;
+        	    const optionsContainer = document.getElementById("optionsContainer");
+        	    optionsContainer.innerHTML = "";
+        	    
+        	    questionObj.options.forEach(option => {
+        	      const button = document.createElement("button");
+        	      button.innerText = option;
+        	      button.classList.add("option-btn");
+        	      button.onclick = () => checkAnswer(option);
+        	      optionsContainer.appendChild(button);
+        	    });
+
+        	    // ✅ Show "Next" button only for last question
+        	    if (currentQuestionIndex === currentQuestions.length - 1) {
+        	      document.getElementById("nextBtn").classList.remove("hidden");
+        	    } else {
+        	      document.getElementById("nextBtn").classList.add("hidden");
+        	    }
+        	  }
+        	}
+        function checkAnswer(selectedOption) {
+        	  if (selectedOption === currentQuestions[currentQuestionIndex].answer) {
+        	    score++;
+        	  }
+
+        	  console.log(`Q${currentQuestionIndex + 1}: Selected - ${selectedOption}, Correct - ${currentQuestions[currentQuestionIndex].answer}`);
+        	  currentQuestionIndex++;
+
+        	  if (currentQuestionIndex < currentQuestions.length) {
+        	    showQuestion();
+        	  } else {
+        	    // ✅ Get selected interest
+        	    const selectedInterest = document.getElementById("groupSelect").value;
+
+        	    // ✅ Store in localStorage
+        	    localStorage.setItem("interestQuizResults", JSON.stringify({
+        	      interest: selectedInterest,
+        	      score: score
+        	    }));
+        	    localStorage.setItem("InterestCompleted", "true");
+        	    localStorage.setItem("selectedInterest", selectedInterest);
+        	    localStorage.setItem("interestScore", score);
+
+        	    // ✅ Show Next button (which will trigger backend save)
+        	    document.getElementById("nextBtn").classList.remove("hidden");
+        	  }
+        	}
+
+        function goToNextPage() {
+        	  const evaluationData = {
+        	    psychometricScore: parseInt(localStorage.getItem("psychometricScore")),
+        	    chosenGroup: localStorage.getItem("selectedGroup"),
+        	    groupScore: parseInt(localStorage.getItem("groupScore")),
+        	    chosenInterest: localStorage.getItem("selectedInterest"),
+        	    interestScore: parseInt(localStorage.getItem("interestScore"))
+        	  };
+
+        	  fetch("http://localhost:8080/api/evaluation", {
+        	    method: "POST",
+        	    headers: {
+        	      "Content-Type": "application/json"
+        	    },
+        	    body: JSON.stringify(evaluationData)
+        	  })
+        	  .then(response => {
+        	    if (response.ok) {
+        	      console.log("Full evaluation saved to backend");
+        	      window.location.href = "board.html"; // ✅ Change this if your next page is different
+        	    } else {
+        	      alert("Failed to submit full evaluation to backend.");
+        	    }
+        	  })
+        	  .catch(error => {
+        	    console.error("Error submitting evaluation:", error);
+        	  });
+        	}
+
+    </script>
+</body>
+
+</html>

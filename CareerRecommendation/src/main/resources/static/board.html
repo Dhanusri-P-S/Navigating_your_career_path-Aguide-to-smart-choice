@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Career Path Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top left, #dff9fb, #74b9ff);
+      perspective: 1000px;
+      overflow-x: hidden;
+    }
+
+    .toggle-btn {
+      display: none;
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background: #0984e3;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      z-index: 1001;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+      transition: transform 0.6s ease;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(145deg, #2c3e50, #34495e);
+      color: white;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 5px 0 25px rgba(0, 0, 0, 0.4);
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+      transform-style: preserve-3d;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 25px;
+      font-size: 2rem;
+      color: #f1c40f;
+      transform: translateZ(30px);
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar li {
+      padding: 12px;
+      cursor: pointer;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .sidebar li:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.07) translateZ(10px);
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: inherit;
+      font-weight: 500;
+      display: block;
+      width: 100%;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      background: linear-gradient(to top right, #ffffff, #dff9fb);
+      border-radius: 25px;
+      margin: 25px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      transition: transform 0.5s ease;
+      transform: rotateX(0deg) rotateY(0deg);
+    }
+
+    .main-content:hover {
+      transform: rotateX(2deg) rotateY(2deg);
+    }
+
+    .topbar {
+      margin-bottom: 30px;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge {
+      background: #00cec9;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel {
+      display: none;
+      background: #ecf0f1;
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      animation: fadeIn 0.8s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .toggle-btn {
+        display: block;
+      }
+
+      .container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .sidebar.active {
+        display: flex;
+      }
+
+      .main-content {
+        padding-top: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu</button>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>Career Path</h2>
+      <ul>
+        <li onclick="showPanel('student')"><a href="student.html">🎓 Student Panel</a></li>
+        
+        <li onclick="showPanel('mentor')"><a href="mentor.html">🧑‍🏫 Mentor/Admin Panel</a></li>
+        <li onclick="showPanel('preview')"><a href="preview.html"> 🔎 Preview</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="topbar">
+        <h3 id="dashboardTitle">Welcome</h3>
+        <span class="badge" id="roleBadge">--</span>
+      </div>
+
+      <section class="panel" id="student-panel">
+        <h4>Welcome Student!</h4>
+        <p>✅ View your scores and career suggestions.</p>
+        <p>📈 Track your psychometric and interest assessments.</p>
+        <p>🎯 Personalized roadmap will appear here.</p>
+      </section>
+
+      
+
+      <section class="panel" id="mentor-panel">
+        <h4>Welcome Mentor/Admin!</h4>
+        <p>🛠 Manage users, tests, and dashboard access.</p>
+        <p>📝 View analytics and feedback reports.</p>
+        <p>🔐 Assign tasks and mentorship slots.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const panelTitles = {
+      student: "🎓 Student Dashboard",
+      
+      mentor: "🧑‍🏫 Mentor/Admin Dashboard"
+    };
+
+    function showPanel(panel) {
+      document.querySelectorAll(".panel").forEach(p => p.style.display = "none");
+      document.getElementById(`${panel}-panel`).style.display = "block";
+      document.getElementById("dashboardTitle").textContent = panelTitles[panel];
+      document.getElementById("roleBadge").textContent = panel.toUpperCase();
+    }
+
+    function toggleSidebar() {
+      document.querySelector(".sidebar").classList.toggle("active");
+    }
+
+    window.onload = () => {
+      const role = localStorage.getItem("userRole")?.toLowerCase() || "student";
+      const name = localStorage.getItem("userName") || "User";
+      document.getElementById("dashboardTitle").textContent = panelTitles[role];
+      document.getElementById("roleBadge").textContent = role.toUpperCase();
+      showPanel(role);
+    };
+  </script>
+</body>
+</html>

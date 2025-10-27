@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us - Navigating Your Career Path</title>
+  
+  <!-- Google Fonts + AOS + Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"/>
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css"/>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #f4f4f4;
+    }
+
+    .navbar {
+      background: #0a1931;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+
+    .navbar .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+      padding: 0;
+      margin: 0;
+    }
+
+    .navbar ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .navbar ul li a:hover {
+      color: #fca311;
+    }
+
+    .about-section {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      background: white;
+    }
+
+    .about-image {
+      flex: 1 1 400px;
+      text-align: center;
+    }
+
+    .about-image img {
+      width: 90%;
+      max-width: 500px;
+      border-radius: 20px;
+    }
+
+    .about-content {
+      flex: 1 1 400px;
+      padding: 20px;
+      text-align: left;
+    }
+
+    .about-content h1 {
+      font-size: 2.8rem;
+      color: #0a1931;
+      margin-bottom: 20px;
+    }
+
+    .about-content p {
+      font-size: 1.1rem;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .features-section {
+      background: linear-gradient(to right, #0a1931, #185adb);
+      padding: 60px 20px;
+      color: white;
+      text-align: center;
+    }
+
+    .features-section h2 {
+      font-size: 2rem;
+      margin-bottom: 40px;
+    }
+
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .feature-box {
+      background: white;
+      color: #0a1931;
+      padding: 25px;
+      width: 260px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .feature-box:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+
+    .feature-box h3 {
+      margin-top: 15px;
+      font-size: 1.2rem;
+    }
+
+    .feature-icon {
+      font-size: 40px;
+      color: #185adb;
+    }
+
+    footer {
+      background: #0a1931;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">Career Path</div>
+    <ul>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="#">About Us</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="login.html">Login / Sign Up</a></li>
+    </ul>
+  </nav>
+
+  <section class="about-section">
+    <div class="about-image" data-aos="fade-right">
+      <img src="photo.jpg" alt="Career Guidance">
+    </div>
+    <div class="about-content" data-aos="fade-left">
+      <h1>About Us</h1>
+      <p>"Navigating Your Career Path" is a dedicated platform designed to help students explore and make informed career choices.</p>
+      <p>Our mission is to provide personalized guidance, psychometric analysis, and expert insights to empower students in their career journey.</p>
+      <p>With interactive tools and expert advice, we help students understand their strengths and interests to make the best career decisions.</p>
+    </div>
+  </section>
+
+  <section class="features-section">
+    <h2 data-aos="fade-up">Why Choose Us?</h2>
+    <div class="features">
+      <div class="feature-box" data-aos="zoom-in">
+        <div class="feature-icon">🔍</div>
+        <h3>Career Exploration Tools</h3>
+        <p>Discover options based on your interests and strengths.</p>
+      </div>
+      <div class="feature-box" data-aos="zoom-in" data-aos-delay="100">
+        <div class="feature-icon">🧠</div>
+        <h3>Analysing Skills</h3>
+        <p>Science-backed analysis to reveal your career personality.</p>
+      </div>
+      <div class="feature-box" data-aos="zoom-in" data-aos-delay="200">
+        <div class="feature-icon">🗺️</div>
+        <h3>Smart Career Planning</h3>
+        <p>Build a strategic plan aligned with your goals and market demand.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 Navigating Your Career Path. All Rights Reserved.
+  </footer>
+
+  <!-- AOS JS -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 1000,
+      once: true
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a0ca3;
+      --secondary: #4cc9f0;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #2ecc71;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .dashboard {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--dark);
+      font-size: 2.2rem;
+      position: relative;
+      padding-bottom: 15px;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .section {
+      margin-bottom: 40px;
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      border-left: 4px solid var(--primary);
+    }
+
+    .section h3 {
+      color: var(--primary-dark);
+      font-size: 1.4rem;
+      margin-bottom: 15px;
+    }
+
+    .info-box, .progress-box {
+      background: var(--light);
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .info-box p, .info-box ul {
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .progress-item {
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .progress-item.completed {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .chart-container {
+      width: 100%;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .btn-attractive {
+      display: inline-block;
+      padding: 12px 25px;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 30px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+      text-decoration: none;
+    }
+
+    .btn-attractive:hover {
+      background: var(--primary-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(67, 97, 238, 0.4);
+    }
+
+    .btn-attractive i {
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <h2>Welcome, <span id="userName">User</span></h2>
+
+    <div class="section">
+      <h3>✅ Completion Status</h3>
+      <div class="progress-box">
+        <div class="progress-item" id="loginStatusBox">🔲 Login</div>
+        <div class="progress-item" id="studentStatusBox">🔲 Student History Form</div>
+        <div class="progress-item" id="assessmentStatusBox">🔲 Grade Assessment</div>
+        <div class="progress-item" id="interestStatusBox">🔲 Interest Assessment</div>
+        <div class="progress-item" id="psychometricStatusBox">🔲 Psychometric Test</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>🎓 Selected Group & Interest</h3>
+      <div class="info-box">
+        <p><strong>Selected Group:</strong> <span id="groupName">--</span></p>
+        <p><strong>Total Group Score:</strong> <span id="groupScore">--</span></p>
+        <p><strong>Selected Interest:</strong> <span id="interestName">--</span></p>
+        <p><strong>Interest Score:</strong> <span id="interestScore">--</span></p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>🎯 Recommended Courses</h3>
+      <div class="info-box">
+        <ol id="recommended-courses"></ol>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>🧠 Psychometric Strength Profile</h3>
+      <div class="chart-container">
+        <canvas id="psychometricChart" width="400" height="400"></canvas>
+      </div>
+    </div>
+
+    <div class="section" style="text-align:center">
+      <a href="board.html" class="btn-attractive"><i class="fas fa-arrow-right"></i> Go To Dashboard</a>
+    </div>
+  </div>
+
+  <script>
+    const userData = JSON.parse(localStorage.getItem("studentHistory") || "{}");
+    const subjectQuiz = JSON.parse(localStorage.getItem("subjectQuizResults") || "{}");
+    const interest = localStorage.getItem("selectedInterest");
+    const interestScore = parseInt(localStorage.getItem("interestScore"));
+    const group = subjectQuiz.group;
+    const groupScore = parseInt(subjectQuiz.score);
+    const mark12 = parseInt(userData.mark);
+
+    document.getElementById("userName").textContent = userData.name || "User";
+    document.getElementById("groupName").textContent = group || "--";
+    document.getElementById("groupScore").textContent = isNaN(groupScore) ? "--" : groupScore;
+    document.getElementById("interestName").textContent = interest || "--";
+    document.getElementById("interestScore").textContent = isNaN(interestScore) ? "--" : interestScore;
+
+    const statusMap = {
+      loginStatusBox: localStorage.getItem("userLoggedIn") === "true",
+      studentStatusBox: userData.name && userData.age,
+      assessmentStatusBox: !isNaN(groupScore),
+      interestStatusBox: !isNaN(interestScore),
+      psychometricStatusBox: localStorage.getItem("psychometricCompleted") === "true"
+    };
+
+    for (const [id, completed] of Object.entries(statusMap)) {
+      const el = document.getElementById(id);
+      if (completed) {
+        el.classList.add("completed");
+        el.textContent = "✅ " + el.textContent.slice(2);
+      }
+    }
+
+    function recommendCourse(group, interest, mark12) {
+        if (!group || !interest) return ["B.E", "B.Sc", "Diploma"];
+
+group = group.toLowerCase();
+interest = interest.toLowerCase();
+
+const isHighRange = mark12 >= 450 && mark12 <= 600;
+const isAverageRange = mark12 >= 250 && mark12 < 450;
+const courses = [];
+
+if (isHighRange) {
+  //biology
+  if (group.includes("biology") && interest.includes("medicine")) {
+    courses.push("MBBS", "BDS", "B.Sc Nursing", "B.Pharm");
+  } else if (group.includes("biology") && interest.includes("marketing")) {
+    courses.push("BBA Marketing", "B.Sc Business & Life Sciences", "B.Com with Healthcare Management", "B.Sc Biotech Management");
+  }else if (group.includes("biology") && interest.includes("robotics")) {
+    courses.push("B.Tech Biotechnology", "B.Tech Biomedical Engineering", "B.E Mechatronics", "B.Sc Robotics");
+  } else if (group.includes("biology") && interest.includes("developer")) {
+    courses.push("B.Tech Bioinformatics", "B.Sc Computational Biology", "B.E CSE with Bio-focus", "BCA with Bio Analytics");
+  } else if (group.includes("biology") && interest.includes("designing")) {
+    courses.push("B.Des in Biomedical Design", "B.Sc Medical Illustration", "B.Sc Biodesign", "B.Sc Animation and Anatomy Modeling");
+  } else if (group.includes("biology") && interest.includes("music")) {
+    courses.push("B.Sc Music Therapy", "BA Music with Psychology", "BFA with Neuroscience", "B.Sc Sound Healing");
+  } else if (group.includes("computer") || interest.includes("developer")) {
+    courses.push("B.E CSE", "B.Tech AI/DS", "BCA", "B.Sc IT");
+   }  else if (group.includes("biology") && interest.includes("sports")) {
+    courses.push("B.Sc Sports Science", "B.P.Ed (Physical Education)", "B.Sc Exercise Physiology", "B.Sc Kinesiology");
+  }else if (group.includes("biology") && interest.includes("painting")) {
+    courses.push("B.Sc Medical Illustration", "B.Des in Biomedical Art", "BFA with Human Anatomy Studies", "B.Sc in Biovisualization");
+ }else if (group.includes("biology") && interest.includes("drawing")) {
+    courses.push("B.Des in Biomedical Design", "B.Sc Medical Illustration", "B.Sc Biodesign", "BFA with Life Science Focus");
+ }else if (group.includes("biology") && interest.includes("teaching")) {
+   courses.push("B.Sc Biology + B.Ed", "Integrated M.Sc + B.Ed", "B.Sc Microbiology + B.Ed", "B.Sc Botany/Zoology + B.Ed");
+ } else if (group.includes("biology") && interest.includes("startup")) {
+   courses.push("B.Sc Biotech + Entrepreneurship", "BBA in Healthcare Innovation", "B.Tech Biotech + MBA (Integrated)", "B.Sc Life Sciences + Incubator Program");
+ }else if (group.includes("biology") && interest.includes("business")) {
+  courses.push("BBA in Healthcare Management", "B.Sc Biotech + MBA (Integrated)", "B.Sc in Agri-Business", "B.Com with Life Sciences Electives");
+} else if (group.includes("biology") && interest.includes("agriculture")) {
+ courses.push("B.Sc Agriculture", "B.Tech Agricultural Engineering", "B.Sc Horticulture", "B.Sc Food Technology");
+}else if (group.includes("biology") && interest.includes("genetics")) {
+ courses.push("B.Sc Genetics", "B.Sc Biotechnology", "B.Sc Microbiology", "B.Tech Genetic Engineering");
+}else if (group.includes("biology") && interest.includes("photography")) {
+ courses.push("B.Sc Wildlife Photography", "B.Sc Scientific Photography", "B.Sc Visual Communication", "BFA in Nature & Science Media");
+}else if (group.includes("biology") && interest.includes("police")) {
+courses.push("B.Sc Forensic Science", "B.Sc Criminology", "B.Sc Biology with Law", "B.Sc Cyber Forensics");
+}else if (group.includes("biology") && interest.includes("ias")) {
+courses.push("B.A Public Administration", "B.Sc Environmental Science", "B.A Political Science", "B.Sc Biology with IAS Foundation");
+}
+//computer
+else if (group.includes("computer") && interest.includes("robotics")) {
+courses.push( "B.Tech Robotics Engineering", "B.E Mechatronics","B.Tech CSE with AI & Robotics","B.Sc Computer Science with Robotics Specialization");
+}else if (group.includes("computer") && interest.includes("designing")) {
+courses.push(  "B.Des in UI/UX Design","B.Tech CSE with Specialization in Visual Computing",  "B.Sc Animation and VFX","B.Des in Interaction Design");
+}else if (group.includes("computer") && interest.includes("music")) {
+courses.push("B.Sc Sound Engineering & Music Production", "B.Tech in Audio Technology", "BCA with Multimedia & Music Tech");
+} else if (group.includes("computer") && interest.includes("sports")) {
+courses.push("B.Sc Sports Analytics", "B.Tech CSE with AI in Sports", "BCA with Sports Management Tech");
+}else if (group.includes("computer") && interest.includes("marketing")) {
+courses.push("BBA Digital Marketing","B.Sc IT with Marketing Analytics","B.Com with Digital Media Focus","BCA with E-Commerce Specialization");
+} else if (group.includes("computer") && interest.includes("drawing")) {
+courses.push("B.Des in Communication Design", "B.Sc Animation and Graphic Design", "BCA with Creative Media", "BFA in Digital Arts" );
+} else if (group.includes("computer") && interest.includes("painting")) {
+courses.push( "B.Des in Digital Painting","BFA in Applied Arts", "B.Sc in Game Art & Design", "BCA with Visual Design Focus" );
+}else if (group.includes("computer") && interest.includes("teaching")) {
+courses.push("BCA with Educational Technology","B.Ed with ICT Specialization",  "B.Sc in Computer Science + Teaching Minor","Integrated BCA-MCA with EdTech Focus" );
+} else if (group.includes("computer") && interest.includes("startups")) {
+courses.push( "BCA with Entrepreneurship Development", "B.Sc IT + Innovation & Startup Management", "BBA in Tech Entrepreneurship", "B.Tech in CSE with Startup Incubation Program" );
+} else if (group.includes("computer") && interest.includes("business")) {
+courses.push( "BCA with Business Analytics", "BBA in Information Systems", "B.Com with E-Business","B.Sc in IT & Business Management" );
+}else if (group.includes("computer") && interest.includes("agriculture")) {
+courses.push( "B.Tech in Agricultural Information Technology", "B.Sc in Agri-Informatics", "BCA with Agri-Tech Applications", "B.Sc in Smart Farming & Data Analytics");
+}else if (group.includes("computer") && interest.includes("developer")) {
+courses.push("B.Tech in Computer Science Engineering","B.Sc in Software Engineering","Integrated BCA-MCA","BCA with Full Stack Development Specialization");
+}else if (group.includes("computer") && interest.includes("genetics")) {
+courses.push("B.Tech in Bioinformatics","B.Sc in Computational Biology","BCA with Life Sciences Applications","B.Sc in Genetics with Data Science Minor" );
+}else if (group.includes("computer") && interest.includes("photography")) {
+courses.push("B.Sc in Photography & Multimedia", "BCA with Digital Imaging Specialization", "BA in Visual Communication with Photography Focus" );
+}else if (group.includes("computer") && interest.includes("police")) {
+courses.push( "B.Tech in Cyber Security","B.Sc in Forensic Science with IT","BCA with Cybercrime & Law Specialization");
+}else if (group.includes("computer") && interest.includes("ias")) {
+courses.push( "B.Tech or BCA with Public Administration Minor", "B.A. in Governance + Computer Applications","BCA with General Studies Electives for UPSC");
+}
+//arts history
+else if (group.includes("arts-history") && interest.includes("robotics")) {
+  courses.push("BA in Interactive Media with Robotics", "B.Des in Media Technology & Robotics", "BA in Digital Arts with Robotics Applications");
+} else if (group.includes("arts-history") && interest.includes("designing")) {
+  courses.push("B.Des in Communication Design", "BA in Art History with Design Technology", "BFA in Visual Design & Media Arts");
+} else if (group.includes("arts-history") && interest.includes("music")) {
+  courses.push("BA in Musicology & Cultural History", "BFA in Performing Arts (Music)", "BA in History with Music Technology Minor");
+} else if (group.includes("arts-history") && interest.includes("sports")) {
+  courses.push("BA in Sports History and Journalism", "BA in Physical Education with Cultural Studies", "B.Sc in Sports Management & Heritage");
+} else if (group.includes("arts-history") && interest.includes("marketing")) {
+  courses.push("BA in Media & Cultural Marketing", "BBA in Marketing with Visual Communication", "BA in Heritage Tourism & Branding");
+} else if (group.includes("arts-history") && interest.includes("drawing")) {
+  courses.push("BFA in Drawing & Art History", "BA in Fine Arts with Historical Illustration", "B.Des in Visual Storytelling");
+} else if (group.includes("arts-history") && interest.includes("painting")) {
+  courses.push("BFA in Painting & Art Conservation", "BA in Painting with History of Arts", "BVA in Traditional & Modern Art");
+} else if (group.includes("arts-history") && interest.includes("teaching")) {
+  courses.push("BA B.Ed. in History and Education", "Integrated MA in History with Education Specialization", "B.Ed. in Social Sciences from Central/State Universities");
+} else if (group.includes("arts-history") && interest.includes("startups")) {
+  courses.push("BA in Entrepreneurship & Heritage Studies", "Bachelor of Business Administration (BBA) in Cultural Enterprises", "BDes in Design-led Entrepreneurship");
+} else if (group.includes("arts-history") && interest.includes("business")) {
+  courses.push("BBA in Arts Management", "BA in Economics and History from Tier 1 Colleges", "BA in Public Administration & Heritage Governance");
+} else if (group.includes("arts-history") && interest.includes("agriculture")) {
+  courses.push("BA in Rural Development from Reputed Institutions", "BSc in Agri-Tourism & Heritage (Interdisciplinary)", "BA in Cultural Anthropology with Agri Studies");
+} else if (group.includes("arts-history") && interest.includes("genetics")) {
+  courses.push("BA in Bioethics and History of Science", "BSc in History and Philosophy of Science (Genetics Focus)", "BA in Medical Humanities from Top Central Universities");
+} else if (group.includes("arts-history") && interest.includes("developer")) {
+  courses.push("BA in Digital Humanities & Web Development", "Bachelor of Design (BDes) in UI/UX with Historical Applications", "Integrated BA-MA in History with Computational Tools");
+} else if (group.includes("arts-history") && interest.includes("photography")) {
+  courses.push("BFA in Photography with Historical Themes", "BA in Visual Arts and History from Reputed Colleges", "Diploma in Heritage and Cultural Documentation (with Photography)");
+} else if (group.includes("arts-history") && interest.includes("police")) {
+  courses.push("BA in Criminology & Police Administration", "BA in History with Law & Order Studies", "Bachelor in Security and Police Sciences (Central Universities)");
+} else if (group.includes("arts-history") && interest.includes("ias")) {
+  courses.push("BA in History, Political Science, and Economics (Triple Major)", "BA Honours in History from DU/JNU/ASHOKA", "BA in Public Policy & Governance (Premier Institutes)");
+}
+
+//arts and computer
+else if (group.includes("arts-computer") && interest.includes("robotics")) {
+  courses.push("B.Tech in Robotics and Creative Engineering", "Advanced Robotics with AI for Designers", "Integrated Program in Robotics and Art Installations");
+} else if (group.includes("arts-computer") && interest.includes("designing")) {
+  courses.push("Bachelor of Design (B.Des) in Digital Media", "M.Des in Interaction Design", "BFA + Computer Applications (Creative Coding and UX Design)");
+} else if (group.includes("arts-computer") && interest.includes("music")) {
+  courses.push("B.A. in Music Technology", "Bachelor in Sound Design & Creative Coding", "M.A. in Digital Music & Multimedia Arts");
+} else if (group.includes("arts-computer") && interest.includes("sports")) {
+  courses.push("B.Tech in Sports Analytics & Media", "B.Sc in Sports Performance Analysis", "M.A. in Sports Communication and Digital Branding");
+} else if (group.includes("arts-computer") && interest.includes("marketing")) {
+  courses.push("MBA in Digital Marketing & Creative Strategy", "BBA with Digital Media Specialization", "M.Des in Branding and UX Communication");
+} else if (group.includes("arts-computer") && interest.includes("drawing")) {
+  courses.push("Bachelor of Design with Creative Tech", "MFA in Digital Illustration & Animation", "B.Sc in Visual Communication and Digital Art");
+} else if (group.includes("arts-computer") && interest.includes("painting")) {
+  courses.push("MFA in Tech-Integrated Painting", "B.A. in Fine Arts & Digital Imaging", "Masterclass in Contemporary Art & Digital Media");
+} else if (group.includes("arts-computer") && interest.includes("teaching")) { 
+  courses.push("B.Ed in Digital Education", "M.Ed in EdTech & Learning Design", "M.A. in Education with Technology Integration");
+} else if (group.includes("arts-computer") && interest.includes("startups")) { 
+  courses.push("MBA in Tech Entrepreneurship", "BBA in Innovation & Startup Culture", "PGDM in Digital Startup Strategy");
+} else if (group.includes("arts-computer") && interest.includes("business")) { 
+  courses.push("B.Com in Business Analytics", "MBA in Business Intelligence & Design Thinking", "PG Diploma in Tech-enabled Business Management");
+} else if (group.includes("arts-computer") && interest.includes("agriculture")) { 
+  courses.push("B.Sc in Agri-Tech Communication", "PG Diploma in Digital Agriculture Media", "M.A. in Agriculture Policy & Technology");
+} else if (group.includes("arts-computer") && interest.includes("genetics")) { 
+  courses.push("M.A. in Science Communication with Genetics Focus", "PG Diploma in Genetics & Data Visualization", "Certificate in Genetic Art & Data Storytelling");
+} else if (group.includes("arts-computer") && interest.includes("developer")) { 
+  courses.push("B.Sc in Creative Programming", "M.Des in Interaction Development", "Bachelor in Full Stack Design & Development");
+} else if (group.includes("arts-computer") && interest.includes("photography")) { 
+  courses.push("B.A. in Digital Photography", "MFA in Photography & Media Arts", "Diploma in Visual Arts & Tech");
+} else if (group.includes("arts-computer") && interest.includes("police")) { 
+  courses.push("B.A. in Cyber Law & Criminology", "PG Diploma in Police Tech & Surveillance Media", "M.A. in Digital Forensics & Investigation");
+} else if (group.includes("arts-computer") && interest.includes("ias")) { 
+  courses.push("Integrated UPSC with Tech-Aided Learning", "M.A. in Governance & Digital Policy", "PG in Public Administration & AI Awareness");
+}
+
+//nursing
+else if (group.includes("nursing") && interest.includes("robotics")) { 
+  courses.push("PG Diploma in Healthcare Robotics", "M.Tech in Medical Robotics", "B.Sc in Healthcare Robotics Engineering");
+}
+else if (group.includes("nursing") && interest.includes("designing")) { 
+  courses.push("B.Sc in Healthcare UX/UI Design", "PG in Medical Device Designing", "M.Des in Healthcare Product Design");
+}
+else if (group.includes("nursing") && interest.includes("music")) { 
+  courses.push("PG Diploma in Music Therapy", "M.A. in Healing through Music", "B.A. in Music and Health");
+}
+else if (group.includes("nursing") && interest.includes("sports")) { 
+  courses.push("B.Sc in Sports Rehabilitation", "MPT in Sports Medicine", "B.Sc in Sports Science and Nursing");
+}
+else if (group.includes("nursing") && interest.includes("marketing")) { 
+  courses.push("MBA in Healthcare Marketing", "MHA with Marketing Specialization", "PGDM in Healthcare Management");
+}
+else if (group.includes("nursing") && interest.includes("drawing")) { 
+  courses.push("PG in Medical Illustration", "M.A. in Art Therapy", "BFA in Health Communication & Illustration");
+}
+else if (group.includes("nursing") && interest.includes("painting")) { 
+  courses.push("M.A. in Therapeutic Arts", "MFA in Medical Art", "BFA in Health and Wellness Art");
+}
+else if (group.includes("nursing") && interest.includes("teaching")) { 
+  courses.push("M.Sc Nursing in Education", "Post-BSc in Nursing Education", "M.Ed in Nursing Education");
+}
+else if (group.includes("nursing") && interest.includes("startups")) { 
+  courses.push("MBA in Healthcare Entrepreneurship", "PG Diploma in HealthTech Innovation", "Executive Program in Healthcare Startup Management");
+}
+else if (group.includes("nursing") && interest.includes("business")) { 
+  courses.push("MBA in Hospital Management", "PGDM in Healthcare Business", "MHA - Master of Health Administration");
+}
+else if (group.includes("nursing") && interest.includes("agriculture")) { 
+  courses.push("PG Diploma in Rural Health & Agri Clinics", "M.Sc in Community Health and Agriculture", "B.Sc in Rural Health and Agriculture");
+}
+else if (group.includes("nursing") && interest.includes("genetics")) { 
+  courses.push("M.Sc in Human Genetics & Nursing", "PG Diploma in Genetic Counselling", "M.Sc in Clinical Genetics");
+}
+else if (group.includes("nursing") && interest.includes("developer")) { 
+  courses.push("PG in Healthcare App Development", "M.Sc in Health Informatics", "B.Tech in Health Informatics");
+}
+else if (group.includes("nursing") && interest.includes("photography")) { 
+  courses.push("PG in Medical Photography", "M.Sc in Health & Science Photography", "M.A. in Clinical Photography");
+}
+else if (group.includes("nursing") && interest.includes("police")) { 
+  courses.push("M.Sc in Forensic Nursing", "PG in Medico-Legal Nursing", "M.A. in Forensic Medicine and Nursing");
+}
+else if (group.includes("nursing") && interest.includes("ias")) { 
+  courses.push("Integrated Course in Public Health & Administration", "MHA + Governance Specialization", "PG Diploma in Public Health Management");
+}
+
+//without maths
+else if (group.includes("without-maths") && interest.includes("robotics")) { 
+  courses.push("B.Sc in Robotics & Automation (Biology-Based)", "B.Tech in Biomedical Robotics", "Diploma in Medical Robotics Engineering");
+}
+else if (group.includes("without-maths") && interest.includes("designing")) { 
+  courses.push("B.Des in Communication Design", "B.Sc in Fashion & Apparel Design", "Bachelor in Interior Design (Bio Stream Eligible)");
+}
+else if (group.includes("without-maths") && interest.includes("music")) { 
+  courses.push("Bachelor of Performing Arts (Music)", "B.A. in Music Technology", "Diploma in Music Production & Sound Engineering");
+}
+else if (group.includes("without-maths") && interest.includes("sports")) { 
+  courses.push("B.P.Ed (Bachelor of Physical Education)", "B.Sc in Sports Science", "B.A. in Sports Psychology");
+}
+else if (group.includes("without-maths") && interest.includes("marketing")) { 
+  courses.push("BBA in Marketing", "B.Com in Digital Marketing", "B.A. in Advertising & PR");
+}
+else if (group.includes("without-maths") && interest.includes("drawing")) { 
+  courses.push("BFA in Applied Art", "Bachelor of Visual Arts", "Diploma in Sketching & Illustration");
+}
+else if (group.includes("without-maths") && interest.includes("painting")) { 
+  courses.push("BFA in Painting", "Bachelor in Fine Arts (General)", "Diploma in Watercolor & Acrylic Techniques");
+}
+else if (group.includes("without-maths") && interest.includes("teaching")) { 
+  courses.push("B.Ed (after graduation)", "Integrated B.A.-B.Ed Program", "Diploma in Elementary Education (D.El.Ed)");
+}
+else if (group.includes("without-maths") && interest.includes("startups")) { 
+  courses.push("BBA in Entrepreneurship", "Bachelor in Innovation and Venture Development", "Diploma in Startup & Small Business Management");
+}
+else if (group.includes("without-maths") && interest.includes("business")) { 
+  courses.push("B.Com (General)", "BBA in Business Administration", "Bachelor in Family Business Management");
+}
+else if (group.includes("without-maths") && interest.includes("agriculture")) { 
+  courses.push("B.Sc in Agriculture", "B.Sc in Agribusiness Management", "Diploma in Organic Farming");
+}
+else if (group.includes("without-maths") && interest.includes("genetics")) { 
+  courses.push("B.Sc in Genetics", "B.Sc in Biotechnology", "B.Sc in Molecular Biology");
+}
+else if (group.includes("without-maths") && interest.includes("developer")) { 
+  courses.push("BCA (Biology Stream Eligible)", "Diploma in Web Development", "Certificate in App Development for Non-Maths Students");
+}
+else if (group.includes("without-maths") && interest.includes("photography")) { 
+  courses.push("B.A. in Photography", "Diploma in Digital Photography", "Certificate in Photojournalism");
+}
+else if (group.includes("without-maths") && interest.includes("police")) { 
+  courses.push("B.A. in Criminology", "B.Sc in Forensic Science", "Diploma in Police Administration");
+}
+else if (group.includes("without-maths") && interest.includes("ias")) { 
+  courses.push("B.A. in Public Administration", "B.A. in Political Science", "Bachelor in Governance & Public Policy");
+}
+
+} else if (isAverageRange) {
+  if (group.includes("biology") && interest.includes("drawing")) {
+  courses.push("B.Sc in Scientific Illustration", "B.A. in Nature Art", "B.Sc in Visual Communication (Specialization in Biology)");
+} else if (group.includes("biology") && interest.includes("marketing")) {
+  courses.push("BBA in Life Sciences Marketing", "B.Sc in Biotech Sales & Management", "M.Sc in Biotech Marketing & Commercialization");
+} else if (group.includes("biology") && interest.includes("business")) {
+  courses.push("BBA in Healthcare Administration", "B.Sc in Biotech Business Management", "B.Tech in Biotechnology & Business");
+} else if (group.includes("biology") && interest.includes("photography")) {
+  courses.push("B.Sc in Nature Photography", "B.Sc in Scientific Imaging", "B.A. in Environmental Media & Photography");
+} else if (group.includes("biology") && interest.includes("ias")) {
+  courses.push("B.A. in Sociology", "B.Sc in Botany/Zoology with UPSC Coaching", "B.A. in Public Administration with Biology Electives");
+} else if (group.includes("biology") && interest.includes("music")) {
+  courses.push("B.Sc in Music Therapy", "B.A. in Music & Wellness", "Diploma in Music Therapy for Health & Wellness");
+} else if (group.includes("biology") && interest.includes("painting")) {
+  courses.push("BFA in Medical Art", "B.A. in Fine Arts with Biological Art Specialization", "Diploma in Art & Scientific Illustration");
+} else if (group.includes("biology") && interest.includes("startup")) {
+  courses.push("B.Sc in Biotech Entrepreneurship", "Diploma in Biotech Startup Management", "BBA in Life Sciences & Startups");
+} else if (group.includes("biology") && interest.includes("agriculture")) {
+  courses.push("B.Sc in Agriculture Science", "B.Sc in Forestry & Environmental Science", "B.Sc in Dairy Technology");
+} else if (group.includes("biology") && interest.includes("police")) {
+  courses.push("B.Sc in Forensic Science", "B.A. in Criminology", "Diploma in Criminal Investigation & Biology");
+} else if (group.includes("biology") && interest.includes("sports")) {
+  courses.push("B.Sc in Sports Science", "B.A. in Physical Education & Biology", "B.Sc in Fitness & Nutrition Science");
+}
+
+//computer
+else if (group.includes("computer") && interest.includes("robotics")) {
+  courses.push("B.Tech in Robotics Engineering", "B.Sc in Robotics & AI", "BCA with Robotics & Automation Specialization", "B.Sc in Embedded Systems & IoT");
+}
+else if (group.includes("computer") && interest.includes("designing")) {
+  courses.push("B.Sc in Visual Communication", "BCA with Creative Media Specialization", "B.Tech in UI/UX Design", "B.Sc in Multimedia & Web Design");
+}
+else if (group.includes("computer") && interest.includes("music")) {
+  courses.push("B.Sc in Music Technology", "B.A. in Music Production & Sound Engineering", "B.Tech in Audio Engineering & Multimedia");
+}
+else if (group.includes("computer") && interest.includes("sports")) {
+  courses.push("B.Sc in Sports Management with IT", "B.Tech in Sports Analytics & Technology", "BCA with Sports Technology Elective");
+}
+else if (group.includes("computer") && interest.includes("marketing")) {
+  courses.push("BCA with Digital Marketing Focus", "B.Tech in Marketing Analytics", "B.Sc in E-Commerce and Marketing");
+}
+else if (group.includes("computer") && interest.includes("drawing")) {
+  courses.push("B.A. in Graphic Design", "B.Tech in Digital Illustration & Animation", "BCA with Digital Arts & Design Specialization");
+}
+else if (group.includes("computer") && interest.includes("painting")) {
+  courses.push("B.F.A. in Digital Painting & Media Arts", "B.Sc in Visual Arts & Multimedia", "BCA with Digital Media & Art Focus");
+}
+else if (group.includes("computer") && interest.includes("teaching")) {
+  courses.push("B.Ed in Computer Science", "BCA with Educational Technology", "B.Tech in Computer Science & Education");
+}
+else if (group.includes("computer") && interest.includes("startups")) {
+  courses.push("BCA with Entrepreneurship Focus", "B.Tech in Tech Entrepreneurship", "B.A. in Business & Innovation with IT");
+}
+else if (group.includes("computer") && interest.includes("business")) {
+  courses.push("BCA with Business Administration Focus", "B.Tech in IT Management", "BBA with IT & Digital Business");
+}
+else if (group.includes("computer") && interest.includes("genetics")) {
+  courses.push("B.Tech in Bioinformatics", "BCA with Bioinformatics Elective", "B.Sc in Computational Biology & Genetics");
+}
+else if (group.includes("computer") && interest.includes("developer")) {
+  courses.push("B.Tech in Software Engineering", "BCA with Software Development Focus", "B.Sc in Web & App Development");
+}
+else if (group.includes("computer") && interest.includes("agriculture")) {
+  courses.push("B.Tech in Agricultural Technology with AI", "BCA with Digital Agriculture Specialization", "B.Sc in Precision Agriculture Technology");
+}
+else if (group.includes("computer") && interest.includes("ias")) {
+  courses.push("BCA or BA with UPSC Coaching", "B.Tech in Governance & IT", "BCA with Public Administration Focus");
+}
+else if (group.includes("computer") && interest.includes("police")) {
+  courses.push("B.Tech in Cybersecurity & Forensics", "BCA with Forensics & Digital Crime Focus", "B.Sc in Digital Investigation & Law");
+}
+else if (group.includes("computer") && interest.includes("photography")) {
+  courses.push("B.Tech in Digital Photography & Imaging", "BCA with Multimedia & Photography Focus", "B.A. in Photography and Visual Arts");
+}
+
+//arts history
+else if (group.includes("arts-history") && interest.includes("robotics")) {
+  courses.push("B.A. in History and Robotics", "B.A. in Interactive Media and Historical Robotics", "B.Sc. in Robotics with Humanities Focus");
+}
+else if (group.includes("arts-history") && interest.includes("designing")) {
+  courses.push("B.A. in History with Design Integration", "B.F.A. in History & Digital Design", "B.A. in Art History with Digital Arts");
+}
+else if (group.includes("arts-history") && interest.includes("music")) {
+  courses.push("B.A. in Music History and Performance", "B.Mus in Folk and Classical Music", "B.A. in General Arts with Music Specialization");
+}
+else if (group.includes("arts-history") && interest.includes("sports")) {
+  courses.push("B.A. in Sports History and Culture", "B.A. in Sports Journalism with Historical Focus", "B.A. in Media Studies with Sports History");
+}
+else if (group.includes("arts-history") && interest.includes("marketing")) {
+  courses.push("B.A. in Cultural Marketing and History", "B.A. in Marketing with Arts and Cultural Studies", "B.Sc. in Digital Marketing with History Focus");
+}
+else if (group.includes("arts-history") && interest.includes("drawing")) {
+  courses.push("B.A. in Art History with Drawing Focus", "B.F.A. in Historical Illustration and Art", "B.A. in Creative Arts and Art History");
+}
+else if (group.includes("arts-history") && interest.includes("painting")) {
+  courses.push("B.A. in Painting and Cultural Heritage", "B.F.A. in Traditional and Modern Painting", "B.A. in Applied Arts with Historical Focus");
+}
+else if (group.includes("arts-history") && interest.includes("teaching")) {
+  courses.push("B.A. in Education with History Specialization", "B.A. in Teaching History and Social Studies", "B.Ed. in History and Social Sciences");
+}
+else if (group.includes("arts-history") && interest.includes("startups")) {
+  courses.push("B.A. in Cultural Entrepreneurship", "B.A. in Social Innovation and History", "B.Sc. in Creative Entrepreneurship with a Historical Perspective");
+}
+else if (group.includes("arts-history") && interest.includes("business")) {
+  courses.push("B.A. in Arts and Business Management", "B.B.A. in Arts and Event Management", "B.A. in Cultural Business Studies");
+}
+else if (group.includes("arts-history") && interest.includes("agriculture")) {
+  courses.push("B.A. in Rural Development and Heritage Studies", "B.A. in Cultural Heritage and Agriculture", "B.Sc. in Rural Studies with Historical Focus");
+}
+else if (group.includes("arts-history") && interest.includes("genetics")) {
+  courses.push("B.A. in History of Science and Genetics", "B.A. in Humanities and Genetics Communication", "B.A. in Genetic History and Philosophy of Science");
+}
+else if (group.includes("arts-history") && interest.includes("developer")) {
+  courses.push("B.A. in Digital Media and History", "B.Sc. in Web Development with History Focus", "B.A. in Digital Humanities and Web Design");
+}
+else if (group.includes("arts-history") && interest.includes("photography")) {
+  courses.push("B.A. in Visual Storytelling with History Focus", "B.A. in Photography and Visual Arts with Historical Context", "B.A. in Cultural Photography and Media");
+}
+else if (group.includes("arts-history") && interest.includes("police")) {
+  courses.push("B.A. in Police Administration with History", "B.A. in Criminology and Historical Justice", "B.Sc. in Digital Law and Justice History");
+}
+else if (group.includes("arts-history") && interest.includes("ias")) {
+  courses.push("B.A. in History and Political Science", "B.A. in General Studies with History & Public Administration", "B.A. in Arts for UPSC Preparation");
+}
+
+//arts & computer
+else if (group.includes("arts-computer") && interest.includes("robotics")) {
+  courses.push("B.Sc in Robotics and Interactive Media", "B.Tech in Robotics & Digital Arts", "B.A. in Art and Automation");
+}
+else if (group.includes("arts-computer") && interest.includes("designing")) {
+  courses.push("B.Des in Graphic & Web Design", "B.A. in UI/UX Design for Creatives", "B.Sc in Digital Media Arts");
+}
+else if (group.includes("arts-computer") && interest.includes("music")) {
+  courses.push("B.A. in Music Production and Media", "B.Sc in Sound Design and Technology", "B.A. in Music Coding and Digital Arts");
+}
+else if (group.includes("arts-computer") && interest.includes("sports")) {
+  courses.push("B.A. in Sports Media & Communication", "B.Sc in Fitness Technology", "B.A. in Sports Digital Design");
+}
+else if (group.includes("arts-computer") && interest.includes("marketing")) {
+  courses.push("BBA in Digital Marketing and Media", "B.A. in Creative Marketing with Technology", "B.Sc in E-Commerce and Branding");
+}
+else if (group.includes("arts-computer") && interest.includes("drawing")) {
+  courses.push("B.A. in Digital Illustration and Design", "B.F.A. in Digital Art & Animation", "B.Sc in Visual Arts and Coding");
+}
+else if (group.includes("arts-computer") && interest.includes("painting")) {
+  courses.push("B.F.A. in Digital Painting", "B.A. in Mixed Media Arts & Tech", "B.Sc in Visual Arts and Technology");
+}
+else if (group.includes("arts-computer") && interest.includes("teaching")) {
+  courses.push("B.Ed in Educational Technology", "B.A. in Online Learning Design", "B.Sc in Creative Teaching Methods");
+}
+else if (group.includes("arts-computer") && interest.includes("startups")) {
+  courses.push("BBA in Startup Design & Media Strategy", "B.A. in Entrepreneurial Digital Solutions", "B.Sc in Digital Business & Innovation");
+}
+else if (group.includes("arts-computer") && interest.includes("business")) {
+  courses.push("BBA in Digital Business & Media", "B.Com in E-Business and Digital Strategies", "B.Sc in Business Media & Communication");
+}
+else if (group.includes("arts-computer") && interest.includes("agriculture")) {
+  courses.push("B.Sc in Agri-Tech Media", "B.A. in Digital Storytelling for Agriculture", "B.Sc in Tech-Driven Agri Solutions");
+}
+else if (group.includes("arts-computer") && interest.includes("genetics")) {
+  courses.push("B.Sc in Bioinformatics & Digital Arts", "B.A. in Genetics Communication", "B.Tech in Biology and Digital Media");
+}
+else if (group.includes("arts-computer") && interest.includes("developer")) {
+  courses.push("B.Tech in Front-End Development & Design", "B.Sc in UI/UX Development and Technology", "B.A. in Creative Coding for Designers");
+}
+else if (group.includes("arts-computer") && interest.includes("photography")) {
+  courses.push("B.A. in Digital Photography and Visual Media", "B.F.A. in Photography & Technology", "B.Sc in Media Arts and Photography");
+}
+else if (group.includes("arts-computer") && interest.includes("police")) {
+  courses.push("B.A. in Cybersecurity and Digital Law", "B.Sc in Digital Forensics & Media", "B.A. in Law Enforcement Technologies");
+}
+else if (group.includes("arts-computer") && interest.includes("ias")) {
+  courses.push("B.A. in Public Policy and Digital Governance", "B.Sc in e-Governance and Policy", "B.A. in Tech-Aided Civil Services Prep");
+}
+
+
+//nursing
+else if (group.includes("nursing") && interest.includes("robotics")) {
+  courses.push("B.Sc in Nursing with Medical Technology Focus", "B.Tech in Biomedical Instrumentation", "B.Sc in Health Informatics");
+}
+else if (group.includes("nursing") && interest.includes("designing")) {
+  courses.push("B.Des in Healthcare Design", "B.Sc in Medical UX/UI Design", "B.A. in Visual Communication for Health");
+}
+else if (group.includes("nursing") && interest.includes("music")) {
+  courses.push("B.A. in Music Therapy", "B.Sc in Psychology and Music", "B.A. in Music for Healthcare");
+}
+else if (group.includes("nursing") && interest.includes("sports")) {
+  courses.push("B.Sc in Sports Rehabilitation", "B.P.Ed with Health Specialization", "B.Sc in Physical Therapy and Nursing");
+}
+else if (group.includes("nursing") && interest.includes("marketing")) {
+  courses.push("BBA in Healthcare Marketing", "B.Sc in Health Communication", "B.Com in Pharmaceutical Management");
+}
+else if (group.includes("nursing") && interest.includes("drawing")) {
+  courses.push("B.F.A. in Medical Illustration", "B.A. in Visual Arts and Biology", "B.Sc in Scientific Illustration");
+}
+else if (group.includes("nursing") && interest.includes("painting")) {
+  courses.push("B.F.A. in Art Therapy", "B.A. in Expressive Arts", "B.A. in Fine Arts with Health Electives");
+}
+else if (group.includes("nursing") && interest.includes("teaching")) {
+  courses.push("B.Sc in Nursing Education", "B.Ed in Health Education", "B.A. in Clinical Instruction and Pedagogy");
+}
+else if (group.includes("nursing") && interest.includes("startups")) {
+  courses.push("BBA in Healthcare Entrepreneurship", "B.Sc in Hospital Administration", "B.Com in Healthcare Business Innovation");
+}
+else if (group.includes("nursing") && interest.includes("business")) {
+  courses.push("BBA in Hospital Management", "B.Com in Healthcare Finance", "B.Sc in Health Administration");
+}
+else if (group.includes("nursing") && interest.includes("agriculture")) {
+  courses.push("B.Sc in Rural Health and Nutrition", "B.Sc in Public Health & Community Nursing", "B.Sc in Agri-Medical Sciences");
+}
+else if (group.includes("nursing") && interest.includes("genetics")) {
+  courses.push("B.Sc in Human Genetics", "B.Sc in Genetic Counseling", "B.Sc in Biomedical Sciences");
+}
+else if (group.includes("nursing") && interest.includes("developer")) {
+  courses.push("B.Sc in Health Informatics", "BCA in Healthcare Application Development", "B.Tech in Medical Software Systems");
+}
+else if (group.includes("nursing") && interest.includes("photography")) {
+  courses.push("B.F.A. in Medical Photography", "B.Sc in Clinical Imaging and Documentation", "B.A. in Visual Healthcare Communication");
+}
+else if (group.includes("nursing") && interest.includes("police")) {
+  courses.push("B.Sc in Forensic Nursing", "B.A. in Legal Studies for Nurses", "B.Sc in Emergency Response Management");
+}
+else if (group.includes("nursing") && interest.includes("ias")) {
+  courses.push("B.A. in Public Health and Policy", "B.A. in Social Work and Governance", "B.Sc in Health Administration and Civil Services Prep");
+}
+
+//withou maths
+else if (group.includes("without-maths") && interest.includes("robotics")) {
+  courses.push("B.Sc in Robotics and Life Sciences", "B.Tech in Biomedical Robotics", "B.Sc in Assistive Technology");
+}
+else if (group.includes("without-maths") && interest.includes("designing")) {
+  courses.push("B.Des in Fashion Communication", "B.A. in Interior Design", "B.Des in Lifestyle and Accessory Design");
+}
+else if (group.includes("without-maths") && interest.includes("music")) {
+  courses.push("B.A. in Music", "B.F.A. in Performing Arts", "B.A. in Indian Classical Music");
+}
+else if (group.includes("without-maths") && interest.includes("sports")) {
+  courses.push("B.P.Ed (Bachelor of Physical Education)", "B.Sc in Sports Coaching", "B.A. in Health and Wellness");
+}
+else if (group.includes("without-maths") && interest.includes("marketing")) {
+  courses.push("BBA in Digital Marketing", "B.Com in Marketing Management", "B.A. in Advertising and Brand Communication");
+}
+else if (group.includes("without-maths") && interest.includes("drawing")) {
+  courses.push("B.F.A. in Drawing and Illustration", "B.Des in Visual Communication", "B.A. in Fine Arts");
+}
+else if (group.includes("without-maths") && interest.includes("painting")) {
+  courses.push("B.F.A. in Painting", "B.A. in Creative Arts", "B.Des in Applied Arts");
+}
+else if (group.includes("without-maths") && interest.includes("teaching")) {
+  courses.push("B.Ed in Early Childhood Education", "B.A. in Education", "B.Sc in Educational Psychology");
+}
+else if (group.includes("without-maths") && interest.includes("startups")) {
+  courses.push("BBA in Entrepreneurship", "B.Com in Startup and Innovation", "B.A. in Business Studies");
+}
+else if (group.includes("without-maths") && interest.includes("business")) {
+  courses.push("BBA in Business Administration", "B.Com in Business Operations", "B.A. in Business and Management");
+}
+else if (group.includes("without-maths") && interest.includes("agriculture")) {
+  courses.push("B.Sc in Agricultural Science", "B.Sc in Agribusiness", "B.Sc in Organic Farming and Sustainable Agriculture");
+}
+else if (group.includes("without-maths") && interest.includes("genetics")) {
+  courses.push("B.Sc in Genetics", "B.Sc in Human Biology", "B.Sc in Molecular Biology");
+}
+else if (group.includes("without-maths") && interest.includes("developer")) {
+  courses.push("B.Sc in Computer Applications", "BCA (Bachelor of Computer Applications)", "B.Sc in Software Development");
+}
+else if (group.includes("without-maths") && interest.includes("photography")) {
+  courses.push("B.F.A. in Photography", "B.A. in Visual Arts and Photography", "B.Sc in Media and Photography");
+}
+else if (group.includes("without-maths") && interest.includes("police")) {
+  courses.push("B.A. in Criminology", "B.Sc in Forensic Science", "B.A. in Police Administration");
+}
+else if (group.includes("without-maths") && interest.includes("ias")) {
+  courses.push("B.A. in Public Administration", "B.A. in Political Science", "B.A. in History and Governance");
+}
+
+} else {
+  // Low range logic (marks below 250)
+  if (group.includes("biology") && interest.includes("drawing")) {
+  courses.push("B.Sc in Biological Illustration", "B.Des in Life Science Visualization", "B.F.A. in Scientific Art and Design");
+} else if (group.includes("biology") && interest.includes("music")) {
+  courses.push("B.A. in Music Therapy", "B.Sc in Biology and Cognitive Neuroscience", "B.A. in Music and Health Studies");
+} else if (group.includes("biology") && interest.includes("painting")) {
+  courses.push("B.F.A. in Art Therapy", "B.A. in Fine Arts and Anatomy", "B.Sc in Creative Sciences and Mental Health");
+} else if (group.includes("biology") && interest.includes("sports")) {
+  courses.push("B.Sc in Sports Science", "B.P.Ed in Physical Education", "B.Sc in Exercise Physiology");
+} else if (group.includes("biology") && interest.includes("marketing")) {
+  courses.push("BBA in Healthcare Marketing", "B.Sc in Biotech and Market Communication", "B.Com in Pharma & Bio Business Promotion");
+} else if (group.includes("biology") && interest.includes("startup")) {
+  courses.push("B.Sc in Biotech Entrepreneurship", "BBA in Life Science Startups", "B.Com in Healthcare Innovation and Business");
+} else if (group.includes("biology") && interest.includes("business")) {
+  courses.push("BBA in Biosciences Management", "B.Com in Health Sector Business", "B.Sc in Biomedical Business Operations");
+} else if (group.includes("biology") && interest.includes("agriculture")) {
+  courses.push("B.Sc in Agriculture", "B.Sc in Sustainable Farming", "B.Sc in Horticulture and Crop Science");
+} else if (group.includes("biology") && interest.includes("photography")) {
+  courses.push("B.Sc in Wildlife and Nature Photography", "B.F.A. in Bio-Visual Media", "B.Sc in Environmental Photography");
+} else if (group.includes("biology") && interest.includes("police")) {
+  courses.push("B.Sc in Forensic Science", "B.Sc in Crime Scene Investigation", "B.Sc in Biology for Law Enforcement");
+} else if (group.includes("biology") && interest.includes("ias")) {
+  courses.push("B.A. in Environmental Studies and Public Administration", "B.Sc in Biology and Governance", "B.A. in Ecology and Policy Studies");
+}
+
+//computer
+else if (group.includes("computer") && interest.includes("robotics")) {
+  courses.push("B.Tech in Robotics & Automation", "B.Tech in Mechatronics Engineering", "B.Sc in AI and Robotics");
+} else if (group.includes("computer") && interest.includes("designing")) {
+  courses.push("B.Des in UI/UX Design", "B.Sc in Web & App Design", "B.Des in Digital Animation & Graphics");
+} else if (group.includes("computer") && interest.includes("music")) {
+  courses.push("B.Sc in Music Technology", "B.A. in Digital Sound Production", "B.Sc in Multimedia and Audio Engineering");
+} else if (group.includes("computer") && interest.includes("sports")) {
+  courses.push("B.Sc in Sports Analytics", "B.Tech in Fitness and Wearable Tech", "B.Sc in Health & Sports Informatics");
+} else if (group.includes("computer") && interest.includes("marketing")) {
+  courses.push("BBA in Digital Marketing", "B.Com in Marketing Technology", "B.Sc in E-Commerce and Branding Tools");
+} else if (group.includes("computer") && interest.includes("drawing")) {
+  courses.push("B.Des in Digital Illustration", "B.Sc in Computer-Aided Design", "B.F.A. in Digital Sketching");
+} else if (group.includes("computer") && interest.includes("painting")) {
+  courses.push("B.F.A. in Digital Painting", "B.Des in Visual Arts Technology", "B.A. in Painting and Digital Media");
+} else if (group.includes("computer") && interest.includes("teaching")) {
+  courses.push("B.Ed in ICT-Based Teaching", "B.Sc in Educational Technology", "B.A. in Teaching with Digital Tools");
+} else if (group.includes("computer") && interest.includes("startups")) {
+  courses.push("BBA in Tech Entrepreneurship", "B.Sc in Startup Technology and Innovation", "B.Com in Digital Business Strategies");
+} else if (group.includes("computer") && interest.includes("business")) {
+  courses.push("BBA in IT & Business Management", "B.Com in Digital Commerce", "B.Sc in Business Information Systems");
+} else if (group.includes("computer") && interest.includes("agriculture")) {
+  courses.push("B.Tech in Agricultural Informatics", "B.Sc in Agri-Tech and Data Science", "B.Sc in Precision Farming Technology");
+} else if (group.includes("computer") && interest.includes("developer")) {
+  courses.push("B.Tech in Computer Science", "B.Sc in Software Development", "BCA in Full Stack Web Development");
+} else if (group.includes("computer") && interest.includes("genetics")) {
+  courses.push("B.Sc in Bioinformatics", "B.Tech in Computational Biology", "B.Sc in Health Informatics and Genetics");
+} else if (group.includes("computer") && interest.includes("photography")) {
+  courses.push("B.Sc in Digital Photography", "B.A. in Photo Editing and Imaging", "B.F.A. in Visual Media & Tech");
+} else if (group.includes("computer") && interest.includes("police")) {
+  courses.push("B.Sc in Cyber Forensics", "B.Tech in Cyber Security", "B.A. in Law and Digital Investigation");
+} else if (group.includes("computer") && interest.includes("ias")) {
+  courses.push("B.A. in Digital Governance & Policy", "B.A. in Public Administration & Technology", "B.A. in IT for Competitive Exams");
+}
+
+//arts history
+else if (group.includes("arts-history") && interest.includes("robotics")) {
+  courses.push("B.A. in History of Science & Technology", "B.A. in Heritage Robotics & Innovation", "B.Sc in Tech and Cultural Studies");
+} else if (group.includes("arts-history") && interest.includes("designing")) {
+  courses.push("B.Des in Heritage and Cultural Design", "B.A. in Historical Aesthetics", "B.A. in Visual Culture Studies");
+} else if (group.includes("arts-history") && interest.includes("music")) {
+  courses.push("B.A. in Musicology", "B.A. in Ethnomusicology", "B.A. in Classical & Folk Music Studies");
+} else if (group.includes("arts-history") && interest.includes("sports")) {
+  courses.push("B.A. in Sports History & Culture", "B.A. in Traditional Games and Society", "B.Sc in Physical Education and History");
+} else if (group.includes("arts-history") && interest.includes("marketing")) {
+  courses.push("B.A. in Cultural Marketing", "B.Com in Heritage and Brand Promotion", "BBA in Arts & Event Management");
+} else if (group.includes("arts-history") && interest.includes("drawing")) {
+  courses.push("B.F.A. in Traditional Art & Drawing", "B.A. in Visual Heritage", "B.Des in Folk and Cultural Art");
+} else if (group.includes("arts-history") && interest.includes("painting")) {
+  courses.push("B.F.A. in Indian Painting Styles", "B.A. in History of Art", "B.A. in Fine Arts and Culture");
+} else if (group.includes("arts-history") && interest.includes("teaching")) {
+  courses.push("B.Ed in History Education", "B.A. in Educational Heritage", "B.Ed in Arts-Based Pedagogy");
+} else if (group.includes("arts-history") && interest.includes("startups")) {
+  courses.push("BBA in Cultural Enterprise", "B.Com in Heritage Startup Management", "B.A. in Creative Business Innovation");
+} else if (group.includes("arts-history") && interest.includes("business")) {
+  courses.push("B.Com in Heritage Commerce", "BBA in Arts & Culture Business", "B.A. in History and Business Strategy");
+} else if (group.includes("arts-history") && interest.includes("agriculture")) {
+  courses.push("B.Sc in Traditional Agricultural Knowledge", "B.A. in Agri-History and Sustainability", "B.Sc in Rural History & Eco Practices");
+} else if (group.includes("arts-history") && interest.includes("genetics")) {
+  courses.push("B.A. in Bioethics and History", "B.Sc in Science and Society", "B.A. in Historical Perspectives in Genetics");
+} else if (group.includes("arts-history") && interest.includes("developer")) {
+  courses.push("B.A. in Digital Heritage & Web Design", "B.Sc in History and Computing", "B.A. in Digital Publishing & Archives");
+} else if (group.includes("arts-history") && interest.includes("photography")) {
+  courses.push("B.A. in Cultural Photography", "B.F.A. in Documentary Photography", "B.A. in Heritage and Visual Journalism");
+} else if (group.includes("arts-history") && interest.includes("police")) {
+  courses.push("B.A. in Criminology and History", "B.A. in Law and Historical Justice", "B.A. in Forensic History Studies");
+} else if (group.includes("arts-history") && interest.includes("ias")) {
+  courses.push("B.A. in Indian History and Governance", "B.A. in Political Science and History", "B.A. in Public Administration with Heritage Focus");
+}
+
+//arts & computer
+else if (group.includes("arts-computer") && interest.includes("robotics")) {
+  courses.push("B.Sc in Robotics and AI Design", "B.Tech in Mechatronics with Art", "B.Sc in Creative Automation Engineering");
+} else if (group.includes("arts-computer") && interest.includes("designing")) {
+  courses.push("B.Des in Communication Design", "B.Des in Interaction Design", "B.A. in Visual Design and Innovation");
+} else if (group.includes("arts-computer") && interest.includes("music")) {
+  courses.push("B.A. in Music Technology", "B.Sc in Sound Engineering", "B.A. in Digital Music Composition");
+} else if (group.includes("arts-computer") && interest.includes("sports")) {
+  courses.push("B.Sc in Sports Media & Technology", "B.A. in Sports Journalism & Design", "B.Tech in Wearable Sports Tech");
+} else if (group.includes("arts-computer") && interest.includes("marketing")) {
+  courses.push("BBA in Digital Marketing & Design", "B.A. in Creative Advertising", "B.Com in Visual Brand Strategy");
+} else if (group.includes("arts-computer") && interest.includes("drawing")) {
+  courses.push("B.F.A. in Digital Illustration", "B.Des in Animation & Drawing", "B.A. in Sketch and Visual Storytelling");
+} else if (group.includes("arts-computer") && interest.includes("painting")) {
+  courses.push("B.F.A. in Visual Arts", "B.Des in Digital Painting", "B.A. in Art and Multimedia Expression");
+} else if (group.includes("arts-computer") && interest.includes("teaching")) {
+  courses.push("B.Ed in Digital Arts Education", "B.A. in Educational Technology", "B.Ed in Creative Learning Methods");
+} else if (group.includes("arts-computer") && interest.includes("startups")) {
+  courses.push("BBA in Entrepreneurship & Design Thinking", "B.Com in Startup Media & Strategy", "B.A. in Innovation & Creativity");
+} else if (group.includes("arts-computer") && interest.includes("business")) {
+  courses.push("B.Com in Creative Business", "BBA in Media and Business", "B.A. in Business Branding & Visual Strategy");
+} else if (group.includes("arts-computer") && interest.includes("agriculture")) {
+  courses.push("B.Sc in Agri Media & Tech Communication", "B.A. in Sustainable Agriculture Visuals", "B.Tech in Agri Design and Innovation");
+} else if (group.includes("arts-computer") && interest.includes("genetics")) {
+  courses.push("B.Sc in BioArt & Visual Genetics", "B.Sc in Science Visualization", "B.A. in Genetics through Art");
+} else if (group.includes("arts-computer") && interest.includes("developer")) {
+  courses.push("B.Tech in Creative Computing", "B.Sc in Web Design & Development", "B.Sc in Artistic App Development");
+} else if (group.includes("arts-computer") && interest.includes("photography")) {
+  courses.push("B.A. in Digital Photography", "B.F.A. in Photo Media", "B.A. in Visual Journalism");
+} else if (group.includes("arts-computer") && interest.includes("police")) {
+  courses.push("B.A. in Cyber Law & Media Ethics", "B.Sc in Digital Forensics & Art", "B.A. in Surveillance and Public Design");
+} else if (group.includes("arts-computer") && interest.includes("ias")) {
+  courses.push("B.A. in Governance, Media & Technology", "B.A. in Public Administration & Creativity", "B.A. in Policy Communication through Visuals");
+}
+
+//nursing 
+if (group.includes("nursing") && score < 250 && interest.includes("robotics")) {
+  courses.push(
+    "BSc in Biomedical Technology",
+    "Diploma in Medical Electronics",
+    "BSc in Health Informatics"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("designing")) {
+  courses.push(
+    "BSc in Medical Illustration",
+    "BA in Visual Communication for Healthcare",
+    "BDes in Healthcare UX/UI"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("music")) {
+  courses.push(
+    "BA in Music Therapy",
+    "BSc in Psychology with Music Integration",
+    "BA in Expressive Arts and Wellness"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("sports")) {
+  courses.push(
+    "BSc in Sports Science",
+    "BSc in Physiotherapy (if available for low scores)",
+    "BPEd – Physical Education with Rehab Training"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("marketing")) {
+  courses.push(
+    "BBA in Healthcare Marketing",
+    "BA in Media & Health Promotion",
+    "BCom in Hospital Management"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("drawing")) {
+  courses.push(
+    "BFA in Medical Illustration",
+    "BSc in Art Therapy",
+    "BDes in Scientific Communication"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("painting")) {
+  courses.push(
+    "BFA in Therapeutic Arts",
+    "BA in Healing Arts Practice",
+    "BSc in Art Therapy & Mental Health"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("teaching")) {
+  courses.push(
+    "BSc in Nursing Education",
+    "BA in Health Education and Training",
+    "BEd in Health Sciences (if offered)"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("startups")) {
+  courses.push(
+    "BBA in Hospital & Health Management",
+    "BA in Innovation in Healthcare",
+    "BSc in Medical Entrepreneurship"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("business")) {
+  courses.push(
+    "BBA in Healthcare Management",
+    "BCom in Hospital Administration",
+    "BA in Health Systems and Economics"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("agriculture")) {
+  courses.push(
+    "BSc in Community Health and Rural Development",
+    "BSc in Environmental Health",
+    "BSc in Public Health for Agri Workers"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("genetics")) {
+  courses.push(
+    "BSc in Genetics and Nursing",
+    "BSc in Human Biology",
+    "BSc in Medical Laboratory Technology with Genetics"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("developer")) {
+  courses.push(
+    "BSc in Health Informatics",
+    "BSc in Digital Health and AI",
+    "BCA in Medical App Development (with support courses)"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("photography")) {
+  courses.push(
+    "BSc in Medical Photography",
+    "BA in Visual Media in Healthcare",
+    "BSc in Health Communication & Imaging"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("police")) {
+  courses.push(
+    "BSc in Forensic Nursing",
+    "BA in Law and Health Administration",
+    "BSc in Medico-Legal Studies"
+  );
+}
+else if (group.includes("nursing") && score < 250 && interest.includes("ias")) {
+  courses.push(
+    "BA in Public Health and Administration",
+    "BA in Indian Policy and Health Governance",
+    "BA in General Studies with Health Focus (UPSC Stream)"
+  );
+}
+
+// without maths
+if (group.includes("without-maths") && score < 250 && interest.includes("robotics")) {
+  courses.push(
+    "BSc in Electronics and Robotics (Open Stream)",
+    "Diploma in Mechatronics and Automation",
+    "BTech in Robotics (Bridge course entry in select colleges)"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("designing")) {
+  courses.push(
+    "Bachelor of Design (B.Des) – Interior / Communication Design",
+    "BFA in Applied Arts",
+    "BSc in Visual Communication"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("music")) {
+  courses.push(
+    "BA in Music (Vocal/Instrumental)",
+    "BFA in Music and Performing Arts",
+    "BSc in Sound Engineering and Production"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("sports")) {
+  courses.push(
+    "BPEd (Bachelor of Physical Education)",
+    "BA in Sports and Recreation Management",
+    "BSc in Health & Fitness Studies"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("marketing")) {
+  courses.push(
+    "BA in Marketing and Sales",
+    "BBA (General or Digital Marketing Specialization)",
+    "BCom in E-Commerce and Marketing"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("drawing")) {
+  courses.push(
+    "BFA in Drawing and Illustration",
+    "BA in Visual Arts",
+    "Bachelor of Design (B.Des) – Fine Arts Track"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("painting")) {
+  courses.push(
+    "BFA in Painting",
+    "BA in Art History and Painting",
+    "BDes in Art and Aesthetics"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("teaching")) {
+  courses.push(
+    "BA in Education",
+    "BEd (Elementary) – 4 Year Integrated",
+    "BA in Child Psychology and Development"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("startups")) {
+  courses.push(
+    "BBA in Entrepreneurship",
+    "BA in Business Studies",
+    "BCom in Start-up and Innovation"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("business")) {
+  courses.push(
+    "BBA in Business Administration",
+    "BCom General",
+    "BA in Business Economics"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("agriculture")) {
+  courses.push(
+    "BSc in Agriculture (Open University / Practical-based Colleges)",
+    "BSc in Horticulture",
+    "BSc in Sustainable Agriculture"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("genetics")) {
+  courses.push(
+    "BSc in Life Sciences",
+    "BSc in Biotechnology",
+    "BSc in Human Biology (No Math Required)"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("developer")) {
+  courses.push(
+    "BCA (in colleges that accept students without Maths)",
+    "BSc in Multimedia & Web Technology",
+    "BSc in Computer Applications (Open Mode)"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("photography")) {
+  courses.push(
+    "BA in Photography and Visual Arts",
+    "BFA in Photography and Media",
+    "BSc in Film & Media Studies"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("police")) {
+  courses.push(
+    "BA in Criminology",
+    "BA in Police Administration",
+    "BA in Sociology with Criminology"
+  );
+}
+else if (group.includes("without-maths") && score < 250 && interest.includes("ias")) {
+  courses.push(
+    "BA in Political Science",
+    "BA in History and Public Administration",
+    "BA in General Studies for Civil Services"
+  );
+}
+
+
+}
+return courses;
+    }
+
+     
+  
+
+//   // ✅ Store in localStorage
+//   localStorage.setItem("recommendedCourses", JSON.stringify(recommendations));
+
+//   // ✅ Show in UI
+//   document.getElementById("recommended-courses").innerHTML =
+//     recommendations.map(course => `<li>${course}</li>`).join("");
+// } else {
+//   document.getElementById("recommended-courses").innerHTML =
+//     "<li>⚠️ Please complete your student form and assessments.</li>";
+// }
+if (!isNaN(mark12) && group && interest) {
+  const recommendations = recommendCourse(group, interest, mark12);
+
+  // ✅ Store in localStorage
+  localStorage.setItem("recommendedCourses", JSON.stringify(recommendations));
+
+  // ✅ Show in UI
+  document.getElementById("recommended-courses").innerHTML =
+    recommendations.map(course => `<li>${course}</li>`).join("");
+
+  // ✅ Send to backend (only studentId and recommendedCourses)
+  fetch("http://localhost:8080/api/student/save-recommendations", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      studentId: userData.id || "demo-student",
+      recommendedCourses: recommendations
+    })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Failed to store in DB");
+    return res.text();
+  })
+  .then(msg => console.log("✅ Sent to backend:", msg))
+  .catch(err => console.error("❌ Backend error:", err));
+} else {
+  document.getElementById("recommended-courses").innerHTML =
+    "<li>⚠️ Please complete your student form and assessments.</li>";
+}
+
+    // Course Recommender (simplified for now)
+   
+
+    // Psychometric Results Graph
+   
+    const responses = JSON.parse(localStorage.getItem("psychometricResponses") || "{}");
+
+    const traits = {
+      "Creativity": 0,
+      "Self-awareness": 0,
+      "Abstract thinking": 0,
+      "Emotional intelligence": 0,
+      "Critical thinking": 0
+    };
+
+    const options = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
+
+    Object.values(responses).forEach(item => {
+      const q = item.question.toLowerCase();
+      const score = options.indexOf(item.answer) + 1;
+
+      if (q.includes("idea") || q.includes("exploring")) traits["Creativity"] += score;
+      if (q.includes("goal") || q.includes("responsibility") || q.includes("own learning")) traits["Self-awareness"] += score;
+      if (q.includes("adapt") || q.includes("concept")) traits["Abstract thinking"] += score;
+      if (q.includes("emotion") || q.includes("positive") || q.includes("anxious")) traits["Emotional intelligence"] += score;
+      if (q.includes("decision") || q.includes("analyz")) traits["Critical thinking"] += score;
+    });
+
+    new Chart(document.getElementById("psychometricChart"), {
+      type: 'radar',
+      data: {
+        labels: Object.keys(traits),
+        datasets: [{
+          label: 'Psychometric Profile',
+          data: Object.values(traits),
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: '#007BFF',
+          pointBackgroundColor: '#007BFF',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        scales: {
+          r: {
+            min: 0,
+            max: 25,
+            ticks: { stepSize: 5 }
+          }
+        }
+      }
+    });
+   </script>
+</body>
+</html>
