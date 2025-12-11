@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mentor Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #d0e7ff, #f0f9ff);
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 2.8rem;
+      color: #014f86;
+      margin-bottom: 40px;
+    }
+
+    .mentor-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .mentor {
+      width: 150px;
+      transition: transform 0.6s ease;
+    }
+
+    .mentor img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .mentor:hover {
+      transform: scale(1.1);
+    }
+
+    .mentor-name {
+      margin-top: 12px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #014f86;
+    }
+
+    .mentor-details {
+      margin-top: 50px;
+      background: #ffffff;
+      padding: 30px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+      display: none;
+    }
+
+    .slots ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .slots li {
+      margin: 10px auto;
+      width: 80%;
+      background: #e0f7fa;
+      padding: 12px 25px;
+      border-radius: 12px;
+      font-size: 1rem;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+
+    .slots li.booked {
+      background: #bde0fe;
+      color: #333;
+      text-decoration: line-through;
+      cursor: not-allowed;
+    }
+
+    .mentor-contact a {
+      text-decoration: none;
+      color: #0077b6;
+    }
+
+    a.btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #0077b6;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Meet Our Mentors</h2>
+  <div class="mentor-grid">
+    <div class="mentor" onclick="showMentor(0)">
+      <img src="mentorimg.jpg" alt="Mentor 1" />
+      <div class="mentor-name">Ms.Dhivya Selvam</div>
+    </div>
+    <div class="mentor" onclick="showMentor(1)">
+      <img src="mentorimg.jpg" alt="Mentor 2" />
+      <div class="mentor-name">Ms.Dhanusri</div>
+    </div>
+    <div class="mentor" onclick="showMentor(2)">
+      <img src="mentorimg.jpg" alt="Mentor 3" />
+      <div class="mentor-name">Ms.Sowmiya Sasikumar</div>
+    </div>
+    <div class="mentor" onclick="showMentor(3)">
+      <img src="mentorimg.jpg" alt="Mentor 4" />
+      <div class="mentor-name">Ms.Divyabharathi</div>
+    </div>
+  </div>
+
+  <div class="mentor-details" id="mentorDetails">
+    <h3 id="mentorName"></h3>
+    <p id="mentorTitle" style="font-style: italic; color: gray;"></p>
+    <p id="mentorQualification"></p>
+    <p id="mentorBio"></p>
+    <div class="slots" id="mentorSlots"></div>
+    <div class="mentor-contact" id="mentorContact"></div>
+    <a href="board.html" class="btn">Go to Dashboard</a>
+  </div>
+
+  <script>
+    const mentors = [
+      {
+        name: "Ms.Dhivya Selvam",
+        title: "Course Advisor",
+        qualification: "BE CSE",
+        about: "Helps students choose the right academic path.",
+        slots: ["Mon 9:00AM - 10:00AM", "Mon 5:00PM - 6:00PM", "Tue 1:00PM - 3:00PM", "Tue 6:00PM - 8:00PM", "Wed 10:00AM - 11:00AM", "Wed 7:00PM - 8:00PM", "Thu 11:00AM - 12:00PM", "Thu 4:00PM - 6:00PM", "Fri 9:30AM - 11:30AM", "Fri 3:00PM - 5:00PM", "Sat 10:00AM - 12:00PM", "Sat 2:00PM - 4:00PM"],
+        contact: "dhivyakalai22@gmail.com"
+      },
+      {
+        name: "Ms.Dhanusri",
+        title: "Course Advisor",
+        qualification: "BE CSE",
+        about: "Guides students in their course and college planning.",
+        slots: ["Mon 10:00AM - 12:00PM", "Mon 9:00PM - 10:00PM", "Tue 10:00AM - 12:00PM", "Tue 1:00PM - 5:00PM", "Wed 10:00AM - 12:00PM", "Wed 4:00PM - 8:00PM", "Thu 10:00AM - 12:00PM", "Thu 6:00PM - 8:00PM", "Fri 11:00AM - 1:00PM", "Fri 3:00PM - 6:00PM", "Sat 10:00AM - 12:00PM", "Sat 2:00PM - 4:00PM"],
+        contact: "dhanusrips@gmail.com"
+      },
+      {
+        name: "Ms.Sowmiya Sasikumar",
+        title: "College Details Advisor",
+        qualification: "BE CSE",
+        about: "Gives insights on colleges and available programs.",
+        slots: ["Mon 9AM - 10.30AM", "Mon 7PM - 8PM", "Tue 7AM - 8AM", "Tue 2PM - 4PM", "Wed 10AM - 12PM", "Wed 1PM - 2PM", "Thu 5PM - 6PM", "Thu 7.30PM - 8.30PM", "Fri 7AM - 8AM", "Fri 6PM - 7PM"],
+        contact: "sowmiyasasikumar23@gmail.com"
+      },
+      {
+        name: "Ms.Divyabharathi",
+        title: "College Details Advisor",
+        qualification: "BE CSE",
+        about: "Helps students make informed college decisions.",
+        slots: ["Mon 10:00AM - 12:00PM", "Mon 2:00PM - 4:00PM", "Tue 11:00AM - 3:00PM", "Tue 5:00PM - 6:00PM", "Wed 9:00AM - 1:00PM", "Wed 3:00PM - 5:00PM", "Thu 10:00AM - 12:00PM", "Thu 2:00PM - 6:00PM", "Fri 11:00AM - 1:00PM", "Fri 4:00PM - 6:00PM", "Sat 9:30AM - 11:30AM", "Sat 1:30PM - 3:30PM"],
+        contact: "divyabharathi16104@gmail.com"
+      }
+    ];
+
+    function showMentor(index) {
+      const mentor = mentors[index];
+      document.getElementById("mentorName").textContent = mentor.name;
+      document.getElementById("mentorTitle").textContent = mentor.title;
+      document.getElementById("mentorQualification").innerHTML = `<strong>Qualification:</strong> ${mentor.qualification}`;
+      document.getElementById("mentorBio").textContent = mentor.about;
+
+      const slotList = mentor.slots.map(slot => {
+        const key = `${mentor.name}_${slot}`;
+        const bookingData = JSON.parse(localStorage.getItem(key) || "{}");
+        const isBooked = bookingData && bookingData.student;
+        const slotClass = isBooked ? "booked" : "";
+        const slotLabel = isBooked ? `${slot} (Booked)` : slot;
+        return `<li class="${slotClass}" onclick="bookSlot(this, '${mentor.name}', '${slot}')">${slotLabel}</li>`;
+      }).join("");
+
+      document.getElementById("mentorSlots").innerHTML = `<strong>Available Slots:</strong><ul>${slotList}</ul>`;
+      document.getElementById("mentorContact").innerHTML = `<strong>Contact:</strong> <a href="mailto:${mentor.contact}">${mentor.contact}</a>`;
+      document.getElementById("mentorDetails").style.display = "block";
+    }
+
+    function bookSlot(element, mentorName, slot) {
+      const isStudent = localStorage.getItem("userLoggedIn") === "true";
+      const isMentor = localStorage.getItem("mentorLoggedIn") === "true";
+      const loggedMentor = localStorage.getItem("loggedMentorName");
+      const key = `${mentorName}_${slot}`;
+      const existingBooking = JSON.parse(localStorage.getItem(key) || "{}");
+
+      if (element.classList.contains("booked")) {
+        if (isMentor && existingBooking && existingBooking.student) {
+          const s = existingBooking.student;
+          const studentMentor = (s.mentor || "").replace(/\s+/g, '').toLowerCase();
+          const currentMentor = (loggedMentor || "").replace(/\s+/g, '').toLowerCase();
+
+          if (studentMentor === currentMentor) {
+            const phone = s.phone || "Phone not available";
+            alert(`📌 Booked Student Details:\n\nStudent: ${s.name || "N/A"}\nAge: ${s.age || "N/A"}\nSchool: ${s.school || "N/A"}\nAddress: ${s.address || "N/A"}\nMark: ${s.mark || "N/A"}\nPhone: ${phone}`);
+          } else {
+            alert("❌ This slot is booked.");
+          }
+        } else {
+          alert("❌ This slot is booked.");
+        }
+        return;
+      }
+
+      if (!isStudent && isMentor) {
+        alert("❌ Only students can book slots.");
+        return;
+      }
+
+      const student = JSON.parse(localStorage.getItem("studentHistory") || "{}");
+      if (!student.name) {
+        alert("No student data found. Please complete the student form first.");
+        return;
+      }
+
+      student.mentor = mentorName;
+      const booking = { student, mentor: mentorName, slot };
+
+      localStorage.setItem(key, JSON.stringify(booking));
+      localStorage.setItem("selectedMentor", JSON.stringify({ name: mentorName, slot }));
+   // ✅ Store booking also in backend database
+      fetch("http://localhost:8080/api/mentor/book-slot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+         // studentId: student.id || "demo-student",
+          studentName: student.name,
+          studentPhone: student.phone || "Phone Not Available",
+          mentorName: mentorName,
+          slot: slot
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Backend error");
+        return res.text();
+      })
+      .then(msg => console.log("✅ Saved booking to backend:", msg))
+      .catch(err => console.error("❌ Failed to save booking to backend:", err));
+
+
+      element.classList.add("booked");
+      element.textContent += " (Booked)";
+      alert(`✅ Slot booked successfully with ${mentorName}!\nSlot: ${slot}`);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Group Selection</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          text-align: center;
+          margin: 20px;
+          background: linear-gradient(135deg, #f4f4f4, #d1f0ff);
+          animation: backgroundShift 10s infinite alternate;
+        }
+    
+        @keyframes backgroundShift {
+          0% {
+            background: linear-gradient(135deg, #f4f4f4, #d1f0ff);
+          }
+          100% {
+            background: linear-gradient(135deg, #fff0f5, #cce5ff);
+          }
+        }
+    
+        h2 {
+          color: #333;
+          animation: fadeInDown 1s ease-out;
+        }
+    
+        @keyframes fadeInDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+    
+        select,
+        button {
+          font-size: 16px;
+          padding: 10px;
+          margin: 10px;
+          border: none;
+          border-radius: 5px;
+          transition: all 0.3s ease-in-out;
+        }
+    
+        select {
+          background-color: #fff;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          animation: fadeIn 1.2s ease-in;
+        }
+    
+        button {
+          background-color: #007BFF;
+          color: white;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+    
+        button:hover {
+          background-color: #0056b3;
+          transform: scale(1.05);
+        }
+    
+        #quizContainer {
+          background: white;
+          padding: 20px;
+          margin: 20px auto;
+          width: 50%;
+          border-radius: 10px;
+          box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.15);
+          animation: slideUp 1s ease;
+        }
+    
+        @keyframes slideUp {
+          from {
+            transform: translateY(30px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+    
+        .hidden {
+          display: none;
+        }
+    
+        button.option-btn {
+          display: block;
+          width: 80%;
+          margin: 10px auto;
+          padding: 10px;
+          background-color: #28a745;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background 0.3s, transform 0.2s;
+        }
+    
+        button.option-btn:hover {
+          background-color: #218838;
+          transform: scale(1.03);
+        }
+    
+        a {
+          text-decoration: none;
+          color: white;
+        }
+      </style>
+</head>
+
+<body style="background-image: url('qnsbg.png'); background-size: cover; background-repeat: no-repeat; background-position: center; font-family: Arial, sans-serif;">
+    <h2>Select Your 12th Grade Group</h2>
+    <select id="groupSelect">
+        <option value="maths-biology">Maths & Biology</option>
+        <option value="computer-science">Computer Science</option>
+        <option value="arts-history">Arts & History</option>
+        <option value="arts-computer">Arts & Computer</option>
+        <option value="nursing">Nursing</option>
+        <option value="without-maths">Without Maths (Biology)</option>
+    </select>
+    <button onclick="startQuiz()">Start Quiz</button>
+
+    <div id="quizContainer" class="hidden">
+        <h3 id="questionText"></h3>
+        <div id="optionsContainer"></div>
+   
+       <button id="nextBtn" class="hidden" onclick="goToNextPage()">Next</button>
+       
+    </div>
+
+    <script>
+        const questions = {
+            "maths-biology": [
+                { q: "What is the square root of 144?", options: ["12", "14", "16", "10"], answer: "12" },
+                { q: "What is the powerhouse of the cell?", options: ["Nucleus", "Mitochondria", "Ribosome", "Chloroplast"], answer: "Mitochondria" },
+                { q: "What is the derivative of sin(x)?", options: ["cos(x)", "-sin(x)", "-cos(x)", "tan(x)"], answer: "cos(x)" },
+                { q: "If a triangle has sides 3, 4, and 5, what type of triangle is it?", options: ["Equilateral", "Isosceles", "Right-angled", "Scalene"], answer: "Right-angled" },
+                { q: "What is the sum of the interior angles of a hexagon?", options: ["360°", " 540°", "720°", " 900°"], answer: " 720°" },
+                { q: "The roots of the quadratic equation x^2−5x+6=0 are:", options: [" 2, 3", "1,6", "3,5", "4,2"], answer: "2,3" },
+                { q: "What is the value of log(1)?", options: ["1", "0", "undefined", "10"], answer: "0" },
+                { q: "What is the sum of the first 10 natural numbers?", options: ["45", "55", "65", "75"], answer: "55" },
+                { q: " If cos^2x+sin^2x=?", options: ["0", "1", "2", "-1"], answer: "1" },
+                { q: "Which of the following is an irrational number?", options: ["3/4", "0.75", "√2", "5"], answer: "√2" },
+                { q: "Which organelle is known as the powerhouse of the cell?", options: ["Nucleus", "Mitochondria", "Ribosome", "Golgi body"], answer: "Mitochondria" },
+                { q: "Which vitamin is responsible for blood clotting?", options: ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin K"], answer: "Vitamin K" },
+                { q: "What is the main function of red blood cells?", options: ["Carry oxygen", "Fight infections", "Produce hormones", "Store energy"], answer: "Carry oxygen" },
+                { q: "Which part of the brain controls balance and coordination?", options: ["Cerebrum", "Medulla", "Cerebellum", "Hypothalamus"], answer: "Cerebellum" },
+                { q: "Which blood group is known as the universal donor?", options: ["A", "B", "AB", "O"], answer: "O" },
+                { q: "What is the functional unit of the kidney?", options: ["Neuron", "Nephron", "Alveoli", "Glomerulus"], answer: "Nephron" },
+                { q: "Which gas is released by plants during photosynthesis?", options: ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"], answer: "Oxygen" },
+                { q: "Which part of the flower develops into a fruit?", options: ["Ovary", "Petal", "Stamen", "Root"], answer: "Ovary" },
+                { q: "Which disease is caused by the deficiency of iodine?", options: ["Rickets", "Scurvy", "Goiter", "Beriberi"], answer: "Goiter" },
+                { q: "What is the determinant of the matrix [[1, 2], [3, 4]]?", options: ["-2", "2", "-10", "10"], answer: "-2" }
+            ],
+            "computer-science": [
+                { q: "What does HTML stand for?", options: ["Hyper Text Markup Language", "High Tech Modern Language", "Hyperlink Text Module", "Home Tool Markup Language"], answer: "Hyper Text Markup Language" },
+                { q: "Which of these is a programming language?", options: ["Python", "Eagle", "Lark", "Falcon"], answer: "Python" },
+                { q: "What does HTML stand for?", options: ["Hyper Text Markup Language", "High Tech Modern Language", "Hyperlink Text Module", "Home Tool Markup Language"], answer: "Hyper Text Markup Language" },
+                { q: "Which of these is a programming language?", options: ["Python", "Eagle", "Lark", "Falcon"], answer: "Python" },
+                { q: "What is the full form of CPU?", options: ["Central Processing Unit", "Central Power Unit", "Central Program Unit", "Control Processing Unit"], answer: "Central Processing Unit" },
+                { q: "Which company developed the Java programming language?", options: ["Microsoft", "Apple", "Sun Microsystems", "Google"], answer: "Sun Microsystems" },
+                { q: "Which data structure uses LIFO (Last In First Out)?", options: ["Queue", "Stack", "Array", "Linked List"], answer: "Stack" },
+                { q: "What does CSS stand for?", options: ["Cascading Style Sheets", "Computer Style System", "Creative Style Syntax", "Coding Style System"], answer: "Cascading Style Sheets" },
+                { q: "Which protocol is used to send emails?", options: ["HTTP", "SMTP", "FTP", "POP3"], answer: "SMTP" },
+                { q: "What is the extension of a Python file?", options: [".py", ".java", ".cpp", ".html"], answer: ".py" },
+                { q: "Which of these is an example of an operating system?", options: ["Windows", "Google Chrome", "Python", "HTML"], answer: "Windows" },
+                { q: "Which programming language is mainly used for AI development?", options: ["Java", "Python", "C", "Kotlin"], answer: "Python" },
+                { q: "What does SQL stand for?", options: ["Structured Query Language", "Simple Query Logic", "System Query Link", "Sequential Query Language"], answer: "Structured Query Language" },
+                { q: "Which network topology has a central hub?", options: ["Ring", "Bus", "Star", "Mesh"], answer: "Star" },
+                { q: "Which of the following is an example of system software?", options: ["MS Word", "Google Chrome", "Windows OS", "Photoshop"], answer: "Windows OS" },
+                { q: "Which part of the computer performs arithmetic and logic operations?", options: ["CPU", "RAM", "Hard Disk", "Cache"], answer: "CPU" },
+                { q: "What does HTTP stand for?", options: ["HyperText Transfer Protocol", "High Transfer Text Protocol", "Hyper Transfer Tech Protocol", "Home Text Transfer Protocol"], answer: "HyperText Transfer Protocol" },
+                { q: "Which of the following is NOT a programming language?", options: ["Java", "HTML", "Python", "C++"], answer: "HTML" },
+                { q: "Which shortcut is used to copy text in Windows?", options: ["Ctrl + P", "Ctrl + C", "Ctrl + X", "Ctrl + V"], answer: "Ctrl + C" },
+                { q: "What does GUI stand for?", options: ["Graphical User Interface", "General Utility Interface", "Graphical Unit Integration", "Global User Interaction"], answer: "Graphical User Interface" }
+            ],
+            "arts-history": [
+                { q: "Who painted the Mona Lisa?", options: ["Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"], answer: "Leonardo da Vinci" },
+                { q: "Which year did World War I start?", options: ["1914", "1918", "1939", "1945"], answer: "1914" },
+                { q: "Who painted the Mona Lisa?", options: ["Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"], answer: "Leonardo da Vinci" },
+                { q: "Which year did World War I start?", options: ["1914", "1918", "1939", "1945"], answer: "1914" },
+                { q: "Who wrote the play 'Hamlet'?", options: ["William Shakespeare", "Charles Dickens", "Jane Austen", "Mark Twain"], answer: "William Shakespeare" },
+                { q: "Which ancient wonder was located in Egypt?", options: ["Hanging Gardens of Babylon", "Colossus of Rhodes", "Great Pyramid of Giza", "Temple of Artemis"], answer: "Great Pyramid of Giza" },
+                { q: "Who was the first President of the United States?", options: ["Abraham Lincoln", "Thomas Jefferson", "George Washington", "John Adams"], answer: "George Washington" },
+                { q: "Which country was formerly known as Persia?", options: ["Iraq", "Iran", "Syria", "Turkey"], answer: "Iran" },
+                { q: "What was the name of the ship that brought the Pilgrims to America?", options: ["Titanic", "Santa Maria", "Mayflower", "Endeavour"], answer: "Mayflower" },
+                { q: "Which civilization built Machu Picchu?", options: ["Aztec", "Mayan", "Inca", "Olmec"], answer: "Inca" },
+                { q: "Who was the first woman to win a Nobel Prize?", options: ["Marie Curie", "Mother Teresa", "Rosalind Franklin", "Ada Lovelace"], answer: "Marie Curie" },
+                { q: "What was the primary language of the Roman Empire?", options: ["Greek", "Latin", "Hebrew", "Persian"], answer: "Latin" },
+                { q: "Who was the last Emperor of Russia?", options: ["Nicholas I", "Alexander III", "Nicholas II", "Ivan the Terrible"], answer: "Nicholas II" },
+                { q: "Which treaty ended World War I?", options: ["Treaty of Paris", "Treaty of Versailles", "Treaty of Vienna", "Treaty of Ghent"], answer: "Treaty of Versailles" },
+                { q: "What year did India gain independence from Britain?", options: ["1945", "1947", "1950", "1962"], answer: "1947" },
+                { q: "Who discovered America in 1492?", options: ["Ferdinand Magellan", "Vasco da Gama", "Christopher Columbus", "James Cook"], answer: "Christopher Columbus" },
+                { q: "Which famous speech starts with 'I have a dream'?", options: ["Gettysburg Address", "Emancipation Proclamation", "I Have a Dream", "Declaration of Independence"], answer: "I Have a Dream" },
+                { q: "Which artist painted 'The Starry Night'?", options: ["Vincent van Gogh", "Pablo Picasso", "Claude Monet", "Salvador Dalí"], answer: "Vincent van Gogh" },
+                { q: "Who built the Taj Mahal?", options: ["Akbar", "Shah Jahan", "Aurangzeb", "Humayun"], answer: "Shah Jahan" },
+                { q: "Which European explorer first reached India by sea?", options: ["Marco Polo", "Christopher Columbus", "Vasco da Gama", "Ferdinand Magellan"], answer: "Vasco da Gama" }
+            ],
+            "arts-computer": [
+                { q: "Which tool is used for digital painting?", options: ["Adobe Photoshop", "Excel", "PowerPoint", "MS Word"], answer: "Adobe Photoshop" },
+                { q: "What is a pixel?", options: ["A unit of measure", "A color format", "A tiny dot on the screen", "A type of computer"], answer: "A tiny dot on the screen" },
+                { q: "Who painted the Mona Lisa?", options: ["Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"], answer: "Leonardo da Vinci" },
+                { q: "Which art movement is associated with Vincent van Gogh?", options: ["Impressionism", "Cubism", "Post-Impressionism", "Surrealism"], answer: "Post-Impressionism" },
+                { q: "What is the primary color in painting?", options: ["Red", "Green", "Purple", "Orange"], answer: "Red" },
+                { q: "Which artist is famous for the sculpture 'The Thinker'?", options: ["Rodin", "Bernini", "Donatello", "Michelangelo"], answer: "Rodin" },
+                { q: "Which file format is commonly used for digital images?", options: ["JPEG", "DOCX", "MP3", "TXT"], answer: "JPEG" },
+                { q: "Which software is used for digital painting?", options: ["Adobe Photoshop", "Excel", "PowerPoint", "MS Word"], answer: "Adobe Photoshop" },
+                { q: "What does DPI stand for in digital art?", options: ["Dots Per Inch", "Digital Pixel Integration", "Depth Processing Index", "Data Processing Indicator"], answer: "Dots Per Inch" },
+                { q: "What is a pixel?", options: ["A unit of measure", "A color format", "A tiny dot on the screen", "A type of computer"], answer: "A tiny dot on the screen" },
+                { q: "Which artist is known for the famous painting 'The Starry Night'?", options: ["Pablo Picasso", "Leonardo da Vinci", "Vincent van Gogh", "Claude Monet"], answer: "Vincent van Gogh" },
+                { q: "What does HTML stand for?", options: ["Hyper Text Markup Language", "High Tech Modern Language", "Hyperlink Text Module", "Home Tool Markup Language"], answer: "Hyper Text Markup Language" },
+                { q: "Which of the following is a programming language?", options: ["Python", "Eagle", "Lark", "Falcon"], answer: "Python" },
+                { q: "What is the purpose of CSS in web development?", options: ["Structure the website", "Style the website", "Make the website interactive", "Store data"], answer: "Style the website" },
+                { q: "Which is NOT an operating system?", options: ["Windows", "Linux", "MacOS", "Google"], answer: "Google" },
+                { q: "What is the full form of CPU?", options: ["Central Processing Unit", "Computer Processing Utility", "Central Programming Unit", "Computer Power Unit"], answer: "Central Processing Unit" },
+                { q: "Which company developed Windows OS?", options: ["Apple", "Google", "Microsoft", "IBM"], answer: "Microsoft" },
+                { q: "What is the shortcut key for copy on a computer?", options: ["Ctrl + X", "Ctrl + V", "Ctrl + C", "Ctrl + Z"], answer: "Ctrl + C" },
+                { q: "Which storage device has the highest capacity?", options: ["Floppy Disk", "CD", "Hard Drive", "USB Drive"], answer: "Hard Drive" },
+                { q: "What is the main function of a browser?", options: ["Edit documents", "Browse the internet", "Store files", "Play games"], answer: "Browse the internet" }
+            ],
+            "nursing": [
+                { q: "What is the normal body temperature in Fahrenheit?", options: ["98.6", "99.5", "100.2", "97.1"], answer: "98.6" },
+                { q: "What does CPR stand for?", options: ["Cardiopulmonary Resuscitation", "Central Pressure Regulation", "Cardiac Pulse Recovery", "Coronary Pulmonary Response"], answer: "Cardiopulmonary Resuscitation" },
+                { q: "What is the normal body temperature in Fahrenheit?", options: ["98.6", "99.5", "100.2", "97.1"], answer: "98.6" },
+                { q: "What does CPR stand for?", options: ["Cardiopulmonary Resuscitation", "Central Pressure Regulation", "Cardiac Pulse Recovery", "Coronary Pulmonary Response"], answer: "Cardiopulmonary Resuscitation" },
+                { q: "Which blood vessel carries oxygenated blood from the lungs to the heart?", options: ["Pulmonary artery", "Pulmonary vein", "Aorta", "Vena cava"], answer: "Pulmonary vein" },
+                { q: "Which organ is responsible for detoxifying harmful substances in the body?", options: ["Liver", "Kidney", "Pancreas", "Lungs"], answer: "Liver" },
+                { q: "What is the primary function of white blood cells?", options: ["Transport oxygen", "Fight infections", "Clot blood", "Store nutrients"], answer: "Fight infections" },
+                { q: "Which is the largest organ in the human body?", options: ["Liver", "Heart", "Skin", "Lungs"], answer: "Skin" },
+                { q: "What is the universal recipient blood group?", options: ["A", "B", "AB", "O"], answer: "AB" },
+                { q: "Which hormone regulates blood sugar levels?", options: ["Insulin", "Adrenaline", "Thyroxine", "Estrogen"], answer: "Insulin" },
+                { q: "Which part of the brain controls breathing and heart rate?", options: ["Cerebrum", "Cerebellum", "Medulla Oblongata", "Hypothalamus"], answer: "Medulla Oblongata" },
+                { q: "Which vitamin is essential for blood clotting?", options: ["Vitamin A", "Vitamin B12", "Vitamin D", "Vitamin K"], answer: "Vitamin K" },
+                { q: "Which type of immunity is acquired after vaccination?", options: ["Innate immunity", "Passive immunity", "Active immunity", "Herd immunity"], answer: "Active immunity" },
+                { q: "What is the normal pH range of human blood?", options: ["6.5 - 7.0", "7.35 - 7.45", "7.8 - 8.2", "5.0 - 6.0"], answer: "7.35 - 7.45" },
+                { q: "Which chamber of the heart pumps oxygenated blood to the body?", options: ["Right atrium", "Right ventricle", "Left atrium", "Left ventricle"], answer: "Left ventricle" },
+                { q: "Which of the following is a bacterial disease?", options: ["Influenza", "Tuberculosis", "Malaria", "Dengue"], answer: "Tuberculosis" },
+                { q: "What is the recommended number of chest compressions per minute during CPR?", options: ["50-70", "80-100", "100-120", "130-150"], answer: "100-120" },
+                { q: "Which electrolyte is essential for muscle contraction?", options: ["Sodium", "Potassium", "Calcium", "Magnesium"], answer: "Calcium" },
+                { q: "Which disease is caused by the deficiency of Vitamin C?", options: ["Rickets", "Scurvy", "Goiter", "Beriberi"], answer: "Scurvy" },
+                { q: "What is the full form of ICU in a hospital?", options: ["Intensive Care Unit", "Infection Control Unit", "Internal Cardiac Unit", "Injury Care Unit"], answer: "Intensive Care Unit" }
+            ],
+            "without-maths": [
+                { q: "What is the study of plants called?", options: ["Botany", "Zoology", "Microbiology", "Anatomy"], answer: "Botany" },
+                { q: "Which part of the brain controls balance?", options: ["Cerebrum", "Cerebellum", "Medulla", "Hypothalamus"], answer: "Cerebellum" },
+                { q: "What is the study of plants called?", options: ["Botany", "Zoology", "Microbiology", "Anatomy"], answer: "Botany" },
+                { q: "Which part of the brain controls balance and coordination?", options: ["Cerebrum", "Cerebellum", "Medulla", "Hypothalamus"], answer: "Cerebellum" },
+                { q: "Which vitamin is responsible for vision?", options: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"], answer: "Vitamin A" },
+                { q: "Which gas is essential for human respiration?", options: ["Oxygen", "Carbon dioxide", "Nitrogen", "Helium"], answer: "Oxygen" },
+                { q: "Which part of the human body is affected by jaundice?", options: ["Liver", "Heart", "Lungs", "Kidney"], answer: "Liver" },
+                { q: "Which blood group is known as the universal recipient?", options: ["A", "B", "AB", "O"], answer: "AB" },
+                { q: "What is the structural and functional unit of life?", options: ["Tissue", "Organ", "Cell", "Organism"], answer: "Cell" },
+                { q: "What is the process of conversion of light energy into chemical energy in plants called?", options: ["Respiration", "Photosynthesis", "Fermentation", "Transpiration"], answer: "Photosynthesis" },
+                { q: "Which organ purifies blood in the human body?", options: ["Liver", "Heart", "Kidney", "Lungs"], answer: "Kidney" },
+                { q: "What is the primary function of white blood cells?", options: ["Transport oxygen", "Clot blood", "Fight infections", "Produce energy"], answer: "Fight infections" },
+                { q: "Which organelle is responsible for protein synthesis?", options: ["Mitochondria", "Ribosome", "Golgi body", "Nucleus"], answer: "Ribosome" },
+                { q: "Which human organ produces insulin?", options: ["Liver", "Pancreas", "Kidney", "Spleen"], answer: "Pancreas" },
+                { q: "Which animal is known as the 'ship of the desert'?", options: ["Horse", "Elephant", "Camel", "Donkey"], answer: "Camel" },
+                { q: "What is the process of removing metabolic waste from the body called?", options: ["Respiration", "Excretion", "Digestion", "Circulation"], answer: "Excretion" },
+                { q: "Which is the longest bone in the human body?", options: ["Femur", "Humerus", "Tibia", "Fibula"], answer: "Femur" },
+                { q: "Which part of the flower is responsible for reproduction?", options: ["Petal", "Ovary", "Stigma", "Sepal"], answer: "Ovary" },
+                { q: "What is the largest organ in the human body?", options: ["Liver", "Brain", "Skin", "Heart"], answer: "Skin" },
+                { q: "Which disease is caused by a deficiency of Vitamin C?", options: ["Rickets", "Scurvy", "Goiter", "Anemia"], answer: "Scurvy" }
+            ]
+
+        };
+
+  let currentQuestions = [];
+  let currentQuestionIndex = 0;
+  let score = 0;
+
+  function startQuiz() {
+    const selectedGroup = document.getElementById("groupSelect").value;
+    currentQuestions = questions[selectedGroup];
+    currentQuestionIndex = 0;
+    score = 0;
+    document.getElementById("quizContainer").classList.remove("hidden");
+    showQuestion();
+  }
+
+  function showQuestion() {
+    if (currentQuestionIndex < currentQuestions.length) {
+      const questionObj = currentQuestions[currentQuestionIndex];
+      document.getElementById("questionText").innerText = questionObj.q;
+      const optionsContainer = document.getElementById("optionsContainer");
+      optionsContainer.innerHTML = "";
+      questionObj.options.forEach(option => {
+        const button = document.createElement("button");
+        button.innerText = option;
+        button.classList.add("option-btn");
+        button.onclick = () => checkAnswer(option);
+        optionsContainer.appendChild(button);
+      });
+
+      // ✅ Show next button on last question only
+      if (currentQuestionIndex === currentQuestions.length - 1) {
+        document.getElementById("nextBtn").classList.remove("hidden");
+      } else {
+        document.getElementById("nextBtn").classList.add("hidden");
+      }
+    }
+    } 
+
+  function checkAnswer(selectedOption) {
+    if (selectedOption === currentQuestions[currentQuestionIndex].answer) {
+      score++;
+    }
+    console.log(`Q${currentQuestionIndex + 1}: Selected - ${selectedOption}, Correct - ${currentQuestions[currentQuestionIndex].answer}`);
+    currentQuestionIndex++;
+    if (currentQuestionIndex < currentQuestions.length) {
+      showQuestion();
+    } else {
+    	// ✅ Final score handling
+        const selectedGroup = document.getElementById("groupSelect").value;
+
+        localStorage.setItem("subjectQuizResults", JSON.stringify({
+          group: selectedGroup,
+          score: score
+        }));
+        localStorage.setItem("selectedGroup", selectedGroup);
+        localStorage.setItem("groupScore", score);
+        localStorage.setItem("assessmentCompleted", "true");
+
+        //alert(`Quiz completed! Your score: ${score}/${currentQuestions.length}`);
+    }
+  }
+  function goToNextPage() {
+	    window.location.href = "interest.html";
+	  }
+
+
+
+    </script>
+</body>
+
+</html>

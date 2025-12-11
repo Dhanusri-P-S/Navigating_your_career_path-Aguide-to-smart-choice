@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Psychometric Test</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #ffe6f0, #e6f7ff);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .container {
+      width: 90%;
+      max-width: 700px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 25px;
+      font-size: 26px;
+      color: #333;
+    }
+    .question-block {
+      margin-bottom: 20px;
+    }
+    .question-block p {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 15px;
+    }
+    .options label {
+      display: block;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: #28a745;
+      color: white;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      text-align: center;
+    }
+    .options input[type="radio"] {
+      display: none;
+    }
+    .options label:hover {
+      background-color: #218838;
+      transform: scale(1.02);
+    }
+    .options input:checked + label {
+      background-color: #1e7e34;
+    }
+    .next-button {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      display: none;
+    }
+    .next-button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Psychometric Test - Discover Your Career Path</h1>
+  <form id="quizForm"></form>
+</div>
+
+<script>
+  const questions = [
+    "I feel excited about starting college and new experiences.",
+    "I am confident in choosing the right course for my future.",
+    "I believe my school education has prepared me well for college.",
+    "I enjoy exploring different career options and learning about them.",
+    "I feel anxious about the academic pressure in college.",
+    "I can manage my time effectively between study and activities.",
+    "I look forward to making new friends in college.",
+    "I understand how my interests relate to career choices.",
+    "I am ready to live more independently as a college student.",
+    "I enjoy participating in extracurricular and social events.",
+    "I know how to search for career-related information online.",
+    "I am open to seeking help from counselors or mentors.",
+    "I set personal goals for my education and career.",
+    "I am motivated to take responsibility for my own learning.",
+    "I feel ready to adapt to a new academic environment.",
+    "I can handle new routines and challenges confidently.",
+    "I am aware of entrance exams or requirements for my desired course.",
+    "I actively try to improve my communication and soft skills.",
+    "I understand the importance of internships and real-world experience.",
+    "I feel positive and hopeful about my college journey ahead."
+  ];
+
+  const options = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
+  const form = document.getElementById("quizForm");
+  const answers = {};
+  let currentQuestionIndex = 0;
+
+  function renderQuestion(index) {
+    form.innerHTML = "";
+
+    const div = document.createElement("div");
+    div.classList.add("question-block");
+
+    const questionEl = document.createElement("p");
+    questionEl.textContent = `Q${index + 1}: ${questions[index]}`;
+    div.appendChild(questionEl);
+
+    const optionContainer = document.createElement("div");
+    optionContainer.className = "options";
+
+    options.forEach((opt, i) => {
+      const radioId = `q${index}_opt${i}`;
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = `q${index}`;
+      input.id = radioId;
+      input.value = i + 1;
+
+      const label = document.createElement("label");
+      label.setAttribute("for", radioId);
+      label.textContent = opt;
+
+      input.addEventListener("change", () => {
+        answers[`Q${index + 1}`] = {
+          question: questions[index],
+          answer: opt
+        };
+        if (index === questions.length - 1) {
+          document.getElementById("nextBtn").style.display = "inline-block";
+        } else {
+          currentQuestionIndex++;
+          renderQuestion(currentQuestionIndex);
+        }
+      });
+
+      optionContainer.appendChild(input);
+      optionContainer.appendChild(label);
+    });
+
+    div.appendChild(optionContainer);
+
+    if (index === questions.length - 1) {
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "Next";
+      nextBtn.id = "nextBtn";
+      nextBtn.className = "next-button";
+      nextBtn.style.display = "none";
+
+      nextBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        localStorage.setItem("psychometricResponses", JSON.stringify(answers));
+        localStorage.setItem("psychometricCompleted", "true");
+        window.location.href = "qns.html"; // Redirect to next page
+      });
+
+      div.appendChild(nextBtn);
+    }
+
+    form.appendChild(div);
+  }
+
+  renderQuestion(currentQuestionIndex);
+
+  // Mark incomplete if user exits early
+  window.addEventListener("beforeunload", () => {
+    if (!localStorage.getItem("psychometricCompleted")) {
+      localStorage.setItem("psychometricCompleted", "false");
+    }
+  });
+</script>
+
+</body>
+</html>
